@@ -611,6 +611,25 @@ def receipt(order_id):
         flash(f'Error fetching receipt: {str(e)}', 'error')
         return redirect(url_for('home'))
 
+@app.route('/my-orders')
+def my_orders():
+    if 'user' not in session:
+        flash('Please login to view your orders.', 'error')
+        return redirect(url_for('login'))
+    
+    try:
+        # Fetch all orders for the user, ordered by most recent
+        resp = supabase.table('orders').select('*').eq('user_id', session['user']).order('created_at', desc=True).execute()
+        orders = resp.data or []
+        
+        # Calculate totals and counts for a nice summary
+        paid_count = sum(1 for o in orders if o.get('status') == 'paid')
+        
+        return render_template('orders.html', orders=orders, paid_count=paid_count)
+    except Exception as e:
+        flash(f'Error fetching orders: {str(e)}', 'error')
+        return redirect(url_for('home'))
+
 # ── Admin ─────────────────────────────────────────────────────────────────────
 
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'static', 'uploads')

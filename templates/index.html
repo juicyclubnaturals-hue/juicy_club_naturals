@@ -37,6 +37,7 @@
                 <a href="#menu">Menu</a>
                 <a href="#contact">Contact</a>
                 {% if 'user' in session %}
+                    <a href="/my-orders">My Orders</a>
                     {% if session.get('is_admin') %}
                         <a href="/admin">Admin</a>
                     {% endif %}

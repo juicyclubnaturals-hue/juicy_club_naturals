@@ -137,6 +137,11 @@
             <a href="/" class="logo">
                 <span class="logo-juicy">Juicy</span> Club <span class="logo-naturals">Naturals</span>
             </a>
+            <nav class="nav-links">
+                <a href="/">Continue Shopping</a>
+                <a href="/my-orders">My Orders</a>
+                {% if session.get('is_admin') %}<a href="/admin">Admin</a>{% endif %}
+                <a href="/logout">Logout</a>
             </nav>
             <div class="header-actions" style="display: flex; align-items: center; gap: 1.2rem;">
                 <a id="theme-toggle" style="cursor: pointer; color: var(--text-main); font-size: 1.1rem;" title="Toggle Dark/Light Mode">
