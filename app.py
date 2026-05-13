@@ -434,6 +434,10 @@ def update_password():
             
     return render_template('update_password.html')
 
+@app.route('/terms')
+def terms():
+    return render_template('terms.html')
+
 # ── Cart ──────────────────────────────────────────────────────────────────────
 
 @app.route('/cart')
