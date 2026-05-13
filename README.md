@@ -1,6 +1,6 @@
 # Juicy Club Naturals
 
-A modern, fast, and production-ready local delivery platform for targeted natural problem-solving shots and revitalizing fruit juices. Focus on Beauty (Glass Skin), Gut Health, and Anti-Aging.
+A modern, fast, and production-ready e-commerce platform for targeted functional wellness shots and revitalizing fruit juices. Focus on Beauty (Glass Skin), Gut Health, and Anti-Aging.
 
 ## Features
 - Supabase Authentication

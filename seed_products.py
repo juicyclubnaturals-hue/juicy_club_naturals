@@ -16,40 +16,40 @@ supabase: Client = create_client(supabase_url, supabase_key)
 
 products = [
     {
-        "name": "Glass Skin Shot ✨",
-        "description": "Unlock your natural radiance. A potent blend of Aloe Vera, Lemon, Coconut Water, and Amla designed to hydrate and brighten your skin from within. Perfect for that 'glass skin' glow.",
+        "name": "Glass Skin Elixir",
+        "description": "Functional radiance in a bottle. A targeted blend of Aloe Vera, Amla, and Coconut Water designed to stimulate collagen and deliver a luminous, 'glass skin' finish.",
         "image_url": "https://images.unsplash.com/photo-1610970881699-44a5587cabec?auto=format&fit=crop&w=600&q=80",
         "sku": "JCU_SHOT_GS",
         "sizes": [{"size": "60ml Shot", "price": 49}],
         "is_active": True
     },
     {
-        "name": "Gut Health Shot 🌿",
-        "description": "Your daily digestive companion. Cold-pressed Cucumber, Celery, Green Apple, Spinach, Lemon, and Pineapple to soothe your gut and boost immunity.",
+        "name": "Gut Vitality Shot",
+        "description": "Functional digestive support. Cold-pressed Celery, Green Apple, and Ginger formulated to soothe the gut lining and optimize nutrient absorption.",
         "image_url": "https://images.unsplash.com/photo-1622597467836-f38240662c8b?auto=format&fit=crop&w=600&q=80",
         "sku": "JCU_SHOT_GH",
         "sizes": [{"size": "60ml Shot", "price": 49}],
         "is_active": True
     },
     {
-        "name": "Retinol Shot 🥕",
-        "description": "The ultimate anti-aging elixir. Packed with natural Vitamin A from Carrots, Ginger, Orange, and Lemon to support skin renewal and youthful vitality.",
+        "name": "Retinol Renewal Shot",
+        "description": "Targeted anti-aging nutrition. High-bioavailable Vitamin A from Carrots and Ginger to support cellular turnover and youthful skin elasticity.",
         "image_url": "https://images.unsplash.com/photo-1590779033100-9f60705a2f3b?auto=format&fit=crop&w=600&q=80",
         "sku": "JCU_SHOT_RT",
         "sizes": [{"size": "60ml Shot", "price": 49}],
         "is_active": True
     },
     {
-        "name": "Glow Shot 💖",
-        "description": "Beauty in a bottle. A vibrant mix of Orange, Beetroot, Strawberries, Lemon, and Apple to detoxify your system and bring out your natural blush.",
+        "name": "Lumina Glow Shot",
+        "description": "Functional beauty boost. A vibrant synergy of Beetroot and Citrus to detoxify the bloodstream and enhance natural skin luminosity.",
         "image_url": "https://images.unsplash.com/photo-1547514701-42782101795e?auto=format&fit=crop&w=600&q=80",
         "sku": "JCU_SHOT_GLOW",
         "sizes": [{"size": "60ml Shot", "price": 49}],
         "is_active": True
     },
     {
-        "name": "Energy Booster Juice ⚡",
-        "description": "Pre-workout oxygen in a bottle. Watermelon, Beetroot, Fresh Mint, and Lime to boost blood flow and keep you energized all day long.",
+        "name": "Peak Energy Elixir",
+        "description": "Functional endurance fuel. Watermelon and Beetroot nitric oxide boosters to enhance circulation and provide sustained natural energy.",
         "image_url": "https://images.unsplash.com/photo-1567375639073-956622ec96b4?auto=format&fit=crop&w=600&q=80",
         "sku": "JCU_JUICE_EB",
         "sizes": [
