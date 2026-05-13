@@ -67,13 +67,13 @@ def seed():
             # Check if product exists by SKU
             res = supabase.table('products').select('id').eq('sku', p['sku']).execute()
             if res.data:
-                print(f"Updating {p['name']}...")
+                print(f"Updating {p['sku']}...")
                 supabase.table('products').update(p).eq('sku', p['sku']).execute()
             else:
-                print(f"Inserting {p['name']}...")
+                print(f"Inserting {p['sku']}...")
                 supabase.table('products').insert(p).execute()
         except Exception as e:
-            print(f"Error seeding {p['name']}: {e}")
+            print(f"Error seeding {p['sku']}: {e}")
     print("Done!")
 
 if __name__ == "__main__":

@@ -184,6 +184,14 @@ def manifest():
 def service_worker():
     return app.send_static_file('sw.js')
 
+@app.route('/sitemap.xml')
+def sitemap():
+    return app.send_static_file('sitemap.xml')
+
+@app.route('/robots.txt')
+def robots():
+    return app.send_static_file('robots.txt')
+
 def generate_sku():
     """Generates a unique SKU with JCU_ prefix and 6 random digits."""
     return f"JCU_{''.join(random.choices(string.digits, k=6))}"
