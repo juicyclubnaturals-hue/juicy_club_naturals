@@ -72,10 +72,10 @@
     <div class="row">
         <div class="col">
             <strong>Billed To:</strong><br>
-            {{ order.profiles.name }}<br>
-            {{ order.profiles.address }}<br>
-            Phone: {{ order.profiles.phone }}<br>
-            Email: {{ order.profiles.email }}
+            {{ order.profiles.name if order.profiles else 'Valued Customer' }}<br>
+            {{ order.profiles.address if order.profiles else '' }}<br>
+            {% if order.profiles and order.profiles.phone %}Phone: {{ order.profiles.phone }}<br>{% endif %}
+            {% if order.profiles and order.profiles.email %}Email: {{ order.profiles.email }}{% endif %}
         </div>
         <div class="col right">
             <strong>Order Details:</strong><br>
@@ -116,15 +116,15 @@
         <table>
             <tr>
                 <td>Subtotal:</td>
-                <td class="text-right">₹{{ order.subtotal }}</td>
+                <td class="text-right">₹{{ "%.2f"|format(order.subtotal) }}</td>
             </tr>
             <tr>
                 <td>GST (12%):</td>
-                <td class="text-right">₹{{ order.tax }}</td>
+                <td class="text-right">₹{{ "%.2f"|format(order.tax) }}</td>
             </tr>
             <tr class="grand-total">
                 <td>Total:</td>
-                <td class="text-right">₹{{ order.total_amount }}</td>
+                <td class="text-right">₹{{ "%.2f"|format(order.total_amount) }}</td>
             </tr>
         </table>
     </div>
