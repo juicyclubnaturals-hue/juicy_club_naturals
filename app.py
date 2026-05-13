@@ -566,9 +566,11 @@ def checkout():
 
 @app.route('/payment/success', methods=['POST'])
 def payment_success():
-    payment_id       = request.form.get('razorpay_payment_id')
-    razorpay_order_id = request.form.get('razorpay_order_id')
-    signature        = request.form.get('razorpay_signature')
+    # Validate incoming data
+    if not all([payment_id, razorpay_order_id, signature]):
+        print(f"[PAYMENT] ERROR: Missing payment data. p_id={payment_id}, o_id={razorpay_order_id}, sig={signature}")
+        flash('Payment details missing from gateway. Please contact support.', 'error')
+        return redirect(url_for('home'))
 
     params_dict = {
         'razorpay_order_id': razorpay_order_id,
@@ -577,13 +579,35 @@ def payment_success():
     }
 
     try:
-        razorpay_client.utility.verify_payment_signature(params_dict)
+        print(f"[PAYMENT] Verifying signature for order_id: {razorpay_order_id}")
+        # Verify with Razorpay SDK
+        try:
+            razorpay_client.utility.verify_payment_signature(params_dict)
+        except Exception as sig_err:
+            print(f"[PAYMENT] Signature Verification Failed: {str(sig_err)}")
+            flash('Payment security verification failed. If money was deducted, please contact support.', 'error')
+            return redirect(url_for('home'))
+
         receipt_token = f"REC-{uuid.uuid4().hex[:8].upper()}"
-        supabase.table('orders').update({"status": "paid", "payment_id": payment_id}).eq("razorpay_order_id", razorpay_order_id).execute()
+        
+        # Log update attempt
+        print(f"[PAYMENT] Signature verified. Updating order {razorpay_order_id} to status 'paid'...")
+        
+        update_resp = supabase.table('orders').update({
+            "status": "paid", 
+            "payment_id": payment_id
+        }).eq("razorpay_order_id", razorpay_order_id).execute()
+        
+        print(f"[PAYMENT] DB Update Result: {update_resp.data}")
+        
+        if not update_resp.data:
+            print(f"[PAYMENT] WARNING: No order found in DB with razorpay_order_id: {razorpay_order_id}")
+
         clear_db_cart(session['user'])
         flash(f'Payment successful! Your order has been placed.', 'success')
         return redirect(url_for('receipt', order_id=razorpay_order_id, token=receipt_token))
     except Exception as e:
+        print(f"[PAYMENT] ERROR: {str(e)}")
         flash('Payment verification failed.', 'error')
         return redirect(url_for('home'))
 

@@ -142,9 +142,13 @@
                     </div>
                 </div>
                 <div class="order-actions">
-                    <a href="/receipt/{{ order.razorpay_order_id }}" class="btn btn-outline btn-view">
-                        <i class="fas fa-file-invoice"></i> View Receipt
+                    {% if order.status == 'paid' %}
+                    <a href="/receipt/{{ order.razorpay_order_id }}" class="btn btn-primary btn-view" style="background: #16a34a; border-color: #16a34a;">
+                        <i class="fas fa-receipt"></i> View Official Receipt
                     </a>
+                    {% else %}
+                    <span style="color: var(--text-muted); font-size: 0.85rem; font-style: italic;">Awaiting Payment Confirmation</span>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}
