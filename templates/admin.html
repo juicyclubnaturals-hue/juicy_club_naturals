@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Juicy Club Naturals</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body { background: var(--light-bg); }
+        .admin-wrap { max-width: 1200px; margin: 0 auto; padding: 100px 1.5rem 4rem; }
+
+        /* Tabs */
+        .admin-tabs { display: flex; gap: 0.5rem; margin-bottom: 2rem; flex-wrap: wrap; }
+        .tab-btn {
+            padding: 0.6rem 1.4rem; border-radius: 50px; border: 2px solid var(--primary-color);
+            background: transparent; color: var(--primary-color); font-weight: 700;
+            cursor: pointer; font-family: 'Outfit', sans-serif; font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        .tab-btn.active, .tab-btn:hover { background: var(--primary-color); color: #fff; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* Cards */
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 1.2rem; margin-bottom: 2rem; }
+        .stat-card { background: var(--card-bg); border-radius: 16px; padding: 1.4rem 1.6rem; box-shadow: var(--shadow-sm); }
+        .stat-card .label { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem; }
+        .stat-card .value { font-size: 2rem; font-weight: 800; color: var(--primary-color); }
+
+        /* Tables */
+        .table-wrap { background: var(--card-bg); border-radius: 16px; padding: 1.5rem; box-shadow: var(--shadow-sm); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.85rem 1rem; text-align: left; border-bottom: 1px solid var(--input-border); }
+        th { font-weight: 700; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; }
+        td { font-size: 0.95rem; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: var(--light-bg); }
+
+        /* Status badges */
+        .badge { padding: 0.25rem 0.7rem; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
+        .badge-paid    { background: #d4edda; color: #155724; }
+        .badge-created { background: #fff3cd; color: #856404; }
+        .badge-active  { background: #d1ecf1; color: #0c5460; }
+        .badge-off     { background: #f8d7da; color: #721c24; }
+
+        /* Product form */
+        .form-card { background: var(--card-bg); border-radius: 16px; padding: 2rem; box-shadow: var(--shadow-sm); margin-bottom: 2rem; }
+        .form-card h3 { margin-bottom: 1.5rem; font-size: 1.2rem; color: var(--primary-color); }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-group label { font-weight: 600; font-size: 0.9rem; color: var(--text-muted); }
+        .form-group input, .form-group textarea, .form-group select {
+            padding: 0.7rem 0.9rem; border: 1.5px solid var(--input-border);
+            border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 0.95rem;
+            background: var(--input-bg); color: var(--text-main);
+        }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--primary-color); }
+
+        /* Size rows */
+        .size-row { display: flex; gap: 0.6rem; align-items: center; margin-bottom: 0.5rem; }
+        .size-row input { flex: 1; }
+        .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.1rem; color: #e53935; }
+        .btn-icon:hover { color: #c62828; }
+
+        /* Action buttons in table */
+        .btn-edit { background: #fff3cd; color: #856404; border: none; padding: 0.3rem 0.8rem; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
+        .btn-del  { background: #f8d7da; color: #721c24; border: none; padding: 0.3rem 0.8rem; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; margin-left: 0.3rem; }
+
+        @media(max-width:640px){ .form-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <header class="navbar scrolled" id="navbar" style="background: var(--card-bg); box-shadow: var(--shadow-sm);">
+        <div class="container nav-container">
+            <a href="/" class="logo"><span class="logo-juicy">Juicy</span> Admin</a>
+            <nav class="nav-links">
+                <a href="/">Storefront</a>
+                <a href="/logout">Logout</a>
+                <a id="theme-toggle" style="cursor: pointer;" title="Toggle Dark/Light Mode"><i class="fas fa-moon" id="theme-icon"></i></a>
+            </nav>
+        </div>
+    </header>
+
+    {% include '_toasts.html' %}
+
+    <div class="admin-wrap">
+
+        <!-- ── Dashboard Stats ──────────────────────────── -->
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="label">Total Orders</div>
+                <div class="value">{{ stats.total_orders }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Revenue (Paid)</div>
+                <div class="value">₹{{ "%.0f"|format(stats.revenue) }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Pending</div>
+                <div class="value">{{ stats.pending }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Products</div>
+                <div class="value">{{ stats.products }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Reviews</div>
+                <div class="value">{{ stats.reviews }}</div>
+            </div>
+        </div>
+
+        <!-- ── Tabs ──────────────────────────────────────── -->
+        <div class="admin-tabs">
+            <button class="tab-btn active" onclick="showTab('orders', this)">📦 Orders</button>
+            <button class="tab-btn" onclick="showTab('products', this)">🧃 Products</button>
+            <button class="tab-btn" onclick="showTab('reviews', this)">⭐ Reviews</button>
+        </div>
+
+        <!-- ── ORDERS TAB ──────────────────────────────── -->
+        <div id="tab-orders" class="tab-panel active">
+            <div class="table-wrap">
+                <table>
+                    <thead><tr>
+                        <th>Order #</th><th>Customer</th><th>Contact</th>
+                        <th>Items</th><th>Amount</th><th>Status</th><th>Date</th>
+                    </tr></thead>
+                    <tbody>
+                    {% for o in orders %}
+                    <tr>
+                        <td><strong>{{ o.order_number }}</strong></td>
+                        <td>
+                            {{ o.profiles.name if o.profiles else 'Unknown' }}<br>
+                            <small style="color:var(--text-muted)">{{ o.profiles.email if o.profiles else '' }}</small>
+                        </td>
+                        <td>
+                            {{ o.profiles.phone if o.profiles else '' }}<br>
+                            <small style="color:var(--text-muted)">{{ o.profiles.address if o.profiles else '' }}</small>
+                        </td>
+                        <td>
+                            {% set order_items = o['items'] if o['items'] else {} %}
+                            {% for key, item in order_items.items() %}
+                                <span style="display:block;font-size:0.85rem;">
+                                    {{ item.name }} × {{ item.quantity }}
+                                    {% if item.size %}<em style="color:var(--text-muted)">({{ item.size }})</em>{% endif %}
+                                </span>
+                            {% else %}
+                                <span style="color:var(--text-muted)">—</span>
+                            {% endfor %}
+                        </td>
+                        <td><strong>₹{{ "%.2f"|format(o.total_amount) }}</strong></td>
+                        <td>
+                            <span class="badge {{ 'badge-paid' if o.status == 'paid' else 'badge-created' }}">
+                                {{ o.status | upper }}
+                            </span>
+                        </td>
+                        <td>{{ o.created_at[:10] if o.created_at else '' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="7" style="text-align:center;color:var(--text-muted)">No orders yet.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ── PRODUCTS TAB ──────────────────────────────── -->
+        <div id="tab-products" class="tab-panel">
+
+            <!-- Add / Edit Product Form -->
+            <div class="form-card" id="product-form-card">
+                <h3 id="form-title">➕ Add New Product</h3>
+                <form id="product-form" action="/admin/products/save" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="product_id" id="f-product-id">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Product Name *</label>
+                            <input type="text" name="name" id="f-name" required placeholder="e.g. Watermelon Wave">
+                        </div>
+                        <div class="form-group">
+                            <label>Product SKU <small>(Auto-generated if empty)</small></label>
+                            <input type="text" name="sku" id="f-sku" placeholder="JCU_XXXXXX">
+                        </div>
+                        <div class="form-group">
+                            <label>Image URL <small>(or upload below)</small></label>
+                            <input type="url" name="image_url" id="f-image-url" placeholder="https://...">
+                        </div>
+                        <div class="form-group">
+                            <label>Upload Image from PC</label>
+                            <input type="file" name="image_file" id="f-image-file" accept="image/*">
+                        </div>
+                        <div class="form-group">
+                            <label>Active?</label>
+                            <select name="is_active" id="f-active">
+                                <option value="true">Yes – show on website</option>
+                                <option value="false">No – hidden</option>
+                            </select>
+                        </div>
+                        <div class="form-group full">
+                            <label>Description</label>
+                            <textarea name="description" id="f-desc" rows="2" placeholder="Short product description"></textarea>
+                        </div>
+                        <div class="form-group full">
+                            <label>Sizes &amp; Prices</label>
+                            <div id="size-list"></div>
+                            <button type="button" class="btn btn-outline btn-small" onclick="addSizeRow()" style="width:fit-content;margin-top:0.5rem">
+                                + Add Size
+                            </button>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:0.8rem;margin-top:1.5rem;flex-wrap:wrap;">
+                        <button type="submit" class="btn btn-primary">💾 Save Product</button>
+                        <button type="button" class="btn btn-outline" onclick="resetForm()" style="border-color:var(--text-muted);color:var(--text-muted)">✕ Clear</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Products Table -->
+            <div class="table-wrap">
+                <table>
+                    <thead><tr>
+                        <th>SKU</th><th>Image</th><th>Name</th><th>Description</th>
+                        <th>Sizes / Prices</th><th>Rating</th><th>Status</th><th>Actions</th>
+                    </tr></thead>
+                    <tbody>
+                    {% for p in products %}
+                    <tr id="prod-row-{{ p.id }}">
+                        <td><code style="background:var(--light-bg); padding:0.2rem 0.4rem; border-radius:4px; font-weight:800; color:var(--primary-color);">{{ p.sku }}</code></td>
+                        <td>
+                            {% if p.image_url %}
+                            <img src="{{ p.image_url }}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;">
+                            {% else %}<span style="color:var(--text-muted)">—</span>{% endif %}
+                        </td>
+                        <td><strong>{{ p.name }}</strong></td>
+                        <td style="max-width:200px;font-size:0.88rem;color:var(--text-muted)">{{ p.description or '—' }}</td>
+                        <td style="font-size:0.88rem;">
+                            {% if p.sizes %}
+                                {% for s in p.sizes %}
+                                    <span style="display:block;">{{ s.size }}: ₹{{ s.price }}</span>
+                                {% endfor %}
+                            {% else %}—{% endif %}
+                        </td>
+                        <td style="font-size:0.88rem;">
+                            {% if p.avg_rating %}
+                                <span style="color:#FFD700">★ {{ p.avg_rating }}</span>
+                                <small style="color:var(--text-muted)">({{ p.review_count }})</small>
+                            {% else %}<span style="color:var(--text-muted)">No ratings</span>{% endif %}
+                        </td>
+                        <td>
+                            <span class="badge {{ 'badge-active' if p.is_active else 'badge-off' }}">
+                                {{ 'ACTIVE' if p.is_active else 'HIDDEN' }}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn-edit" onclick='editProduct({{ p | tojson }})'>✏️ Edit</button>
+                            <button class="btn-del" onclick="deleteProduct('{{ p.id }}')">🗑️ Delete</button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="6" style="text-align:center;color:var(--text-muted)">No products yet. Add one above!</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div><!-- end products tab -->
+
+        <!-- ── REVIEWS TAB ──────────────────────────────── -->
+        <div id="tab-reviews" class="tab-panel">
+            <div class="table-wrap">
+                <table>
+                    <thead><tr>
+                        <th>Product</th><th>Customer</th><th>Rating</th><th>Comment</th><th>Date</th>
+                    </tr></thead>
+                    <tbody>
+                    {% for r in reviews %}
+                    <tr>
+                        <td><strong>{{ r.products.name if r.products else 'Deleted' }}</strong></td>
+                        <td>
+                            {{ r.profiles.name if r.profiles else 'Unknown' }}<br>
+                            <small style="color:var(--text-muted)">{{ r.profiles.email if r.profiles else '' }}</small>
+                        </td>
+                        <td>
+                            <div style="color:#FFD700">
+                                {% for i in range(r.rating) %}★{% endfor %}
+                                {% for i in range(5 - r.rating) %}☆{% endfor %}
+                            </div>
+                        </td>
+                        <td style="max-width:300px; font-size:0.9rem;">{{ r.comment or '—' }}</td>
+                        <td>{{ r.created_at[:10] if r.created_at else '' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5" style="text-align:center;color:var(--text-muted)">No reviews yet.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div><!-- admin-wrap -->
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+    /* ── Tab switching ── */
+    function showTab(name, btn) {
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-' + name).classList.add('active');
+        btn.classList.add('active');
+    }
+
+    /* ── Size rows ── */
+    function addSizeRow(size='', price='') {
+        const list = document.getElementById('size-list');
+        const row  = document.createElement('div');
+        row.className = 'size-row';
+        row.innerHTML = `
+            <input type="text"   name="size_name[]"  placeholder="e.g. 100ml" value="${size}"  required>
+            <input type="number" name="size_price[]" placeholder="Price ₹"    value="${price}" required min="0" step="0.01">
+            <button type="button" class="btn-icon" onclick="this.parentElement.remove()">✕</button>
+        `;
+        list.appendChild(row);
+    }
+
+    /* ── Edit product ── */
+    function editProduct(p) {
+        document.getElementById('form-title').textContent = '✏️ Edit Product';
+        document.getElementById('f-product-id').value  = p.id;
+        document.getElementById('f-name').value        = p.name || '';
+        document.getElementById('f-sku').value         = p.sku || '';
+        document.getElementById('f-desc').value        = p.description || '';
+        document.getElementById('f-image-url').value   = p.image_url || '';
+        document.getElementById('f-active').value      = p.is_active ? 'true' : 'false';
+        // Clear and repopulate sizes
+        document.getElementById('size-list').innerHTML = '';
+        (p.sizes || []).forEach(s => addSizeRow(s.size, s.price));
+        document.getElementById('product-form-card').scrollIntoView({behavior:'smooth'});
+        // Switch to products tab if not already
+        document.querySelectorAll('.tab-panel').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-products').classList.add('active');
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+    }
+
+    function resetForm() {
+        document.getElementById('form-title').textContent = '➕ Add New Product';
+        document.getElementById('product-form').reset();
+        document.getElementById('f-product-id').value = '';
+        document.getElementById('size-list').innerHTML = '';
+    }
+
+    /* ── Delete product ── */
+    function deleteProduct(id) {
+        if (!confirm('Delete this product? This cannot be undone.')) return;
+        fetch('/admin/products/delete/' + id, { method: 'POST' })
+            .then(r => r.json())
+            .then(d => {
+                if (d.success) {
+                    const row = document.getElementById('prod-row-' + id);
+                    if (row) row.remove();
+                    showToast('Product deleted.', 'info');
+                } else {
+                    showToast(d.error || 'Delete failed.', 'error');
+                }
+            });
+    }
+
+    /* ── Local toast helper (no page reload needed) ── */
+    function showToast(msg, type='info') {
+        const icons = { success:'✅', error:'❌', info:'ℹ️', warning:'⚠️' };
+        const t = document.createElement('div');
+        t.className = 'toast toast-' + type;
+        t.innerHTML = `<span class="toast-icon">${icons[type]||'ℹ️'}</span>
+                       <span class="toast-msg">${msg}</span>
+                       <button class="toast-close" onclick="this.parentElement.remove()">✕</button>`;
+        document.getElementById('toast-container').appendChild(t);
+        setTimeout(() => { if(t.parentElement) t.remove(); }, 4100);
+    }
+
+    /* Auto-add one size row on page load if creating new */
+    window.addEventListener('DOMContentLoaded', () => {
+        if (!document.getElementById('size-list').children.length) {
+            addSizeRow('Standard', '');
+        }
+    });
+    </script>
+</body>
+</html>

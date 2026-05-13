@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart | Juicy Club Naturals</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body { background: var(--light-bg); }
+
+        .cart-page { max-width: 860px; margin: 0 auto; padding: 110px 1.5rem 4rem; }
+
+        .cart-page h2 { font-size: 2rem; margin-bottom: 2rem; }
+
+        /* ── Cart Item Card ── */
+        .cart-item {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.2rem 1.4rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow 0.25s ease;
+        }
+        .cart-item:hover { box-shadow: var(--shadow-md); }
+
+        .cart-item img {
+            width: 80px; height: 80px;
+            object-fit: cover; border-radius: 10px;
+            flex-shrink: 0;
+        }
+
+        .cart-item-info { flex: 1; min-width: 0; }
+        .cart-item-info h4 { font-size: 1rem; margin-bottom: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cart-item-info .unit-price { font-size: 0.85rem; color: var(--text-muted); }
+
+        /* ── Quantity Controls ── */
+        .qty-controls {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            background: var(--light-bg);
+            border: 1.5px solid var(--input-border);
+            border-radius: 50px;
+            overflow: hidden;
+        }
+        .qty-btn {
+            width: 34px; height: 34px;
+            border: none; background: transparent;
+            font-size: 1.2rem; font-weight: 700;
+            cursor: pointer;
+            color: var(--primary-color);
+            transition: background 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .qty-btn:hover { background: var(--primary-color); color: #fff; }
+        .qty-display {
+            min-width: 36px; text-align: center;
+            font-weight: 700; font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        /* ── Item Total ── */
+        .item-total {
+            font-weight: 800;
+            font-size: 1.05rem;
+            color: var(--primary-color);
+            min-width: 72px;
+            text-align: right;
+        }
+
+        /* ── Remove ── */
+        .remove-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            transition: color 0.2s, transform 0.2s;
+            padding: 4px;
+        }
+        .remove-btn:hover { color: #e53935; transform: scale(1.2); }
+
+        /* ── Spinner overlay on item ── */
+        .cart-item.loading { opacity: 0.5; pointer-events: none; }
+
+        /* ── Order Summary ── */
+        .order-summary {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.6rem;
+            box-shadow: var(--shadow-sm);
+            margin-top: 1.5rem;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.55rem 0;
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+        .summary-row.total-row {
+            border-top: 2px solid var(--primary-color);
+            margin-top: 0.5rem;
+            padding-top: 1rem;
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--primary-color);
+        }
+        .summary-row strong { color: var(--text-main); }
+        .summary-row.total-row strong { color: var(--primary-color); }
+
+        .checkout-btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            margin-top: 1.2rem;
+            padding: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 0;
+            color: var(--text-muted);
+        }
+        .empty-state .empty-icon { font-size: 4rem; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <header class="navbar scrolled" id="navbar" style="background: var(--card-bg); box-shadow: var(--shadow-sm);">
+        <div class="container nav-container">
+            <a href="/" class="logo">
+                <span class="logo-juicy">Juicy</span> Club <span class="logo-naturals">Naturals</span>
+            </a>
+            <nav class="nav-links">
+                <a href="/">Continue Shopping</a>
+                {% if session.get('is_admin') %}<a href="/admin">Admin</a>{% endif %}
+                <a href="/logout">Logout</a>
+                <a id="theme-toggle" style="cursor: pointer;" title="Toggle Dark/Light Mode"><i class="fas fa-moon" id="theme-icon"></i></a>
+            </nav>
+            <div class="mobile-menu-icon" id="mobile-menu-icon"><i class="fas fa-bars"></i></div>
+        </div>
+    </header>
+
+    <div class="cart-page container">
+        <h2>🛒 Your Cart</h2>
+
+        {% include '_toasts.html' %}
+
+        {% if cart %}
+            <div id="cart-items-container">
+                {% for pid, item in cart.items() %}
+                {% set parts = pid.split('_', 1) %}
+                {% set real_pid  = parts[0] %}
+                {% set real_size = parts[1] if parts|length > 1 else 'Standard' %}
+                <div class="cart-item"
+                     id="cart-item-{{ pid }}"
+                     data-cart-key="{{ pid }}"
+                     data-product-id="{{ real_pid }}"
+                     data-size="{{ real_size }}"
+                     data-unit-price="{{ item.price }}">
+                    <img src="{{ item.image }}" alt="{{ item.name }}"
+                         onerror="this.src='https://images.unsplash.com/photo-1622597467836-f38240662c8b?auto=format&fit=crop&w=600&q=80'">
+                    <div class="cart-item-info">
+                        <small style="color:var(--primary-color); font-weight:800; font-size:0.75rem;">{{ item.sku }}</small>
+                        <h4>{{ item.name }}</h4>
+                        <span class="unit-price">{{ real_size }} · ₹{{ "%.2f"|format(item.price) }} each</span>
+                    </div>
+                    <div class="qty-controls">
+                        <button class="qty-btn" onclick="updateCart('{{ pid }}', 'decrement')" title="Decrease">−</button>
+                        <span class="qty-display" id="qty-{{ pid }}">{{ item.quantity }}</span>
+                        <button class="qty-btn" onclick="updateCart('{{ pid }}', 'increment')" title="Increase">+</button>
+                    </div>
+                    <div class="item-total" id="item-total-{{ pid }}">₹{{ "%.2f"|format(item.price * item.quantity) }}</div>
+                    <button class="remove-btn" onclick="updateCart('{{ pid }}', 'remove')" title="Remove item">✕</button>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="order-summary">
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <strong id="summary-subtotal">₹{{ "%.2f"|format(subtotal) }}</strong>
+                </div>
+                <div class="summary-row">
+                    <span>GST (12%)</span>
+                    <strong id="summary-tax">₹{{ "%.2f"|format(tax) }}</strong>
+                </div>
+                <div class="summary-row total-row">
+                    <span>Total</span>
+                    <strong id="summary-total">₹{{ "%.2f"|format(total) }}</strong>
+                </div>
+                <a href="/checkout" class="btn btn-primary checkout-btn">Proceed to Checkout →</a>
+            </div>
+
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">🥤</div>
+                <h3>Your cart is empty!</h3>
+                <p style="margin-bottom: 1.5rem;">Add some delicious juices to get started.</p>
+                <a href="/#menu" class="btn btn-primary">Shop Now</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        async function updateCart(cartKey, action) {
+            const itemEl = document.getElementById('cart-item-' + cartKey);
+            if (!itemEl) return;
+
+            // Read the actual product UUID and size from data attributes
+            const productId = itemEl.dataset.productId;
+            const size      = itemEl.dataset.size;
+
+            // Visual feedback: dim the item
+            itemEl.classList.add('loading');
+
+            try {
+                const resp = await fetch('/api/cart/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ product_id: productId, size: size, action: action })
+                });
+
+                const data = await resp.json();
+
+                if (!resp.ok) {
+                    alert(data.error || 'Something went wrong.');
+                    itemEl.classList.remove('loading');
+                    return;
+                }
+
+                if (data.new_qty === 0) {
+                    // Animate out and remove
+                    itemEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    itemEl.style.opacity = '0';
+                    itemEl.style.transform = 'translateX(40px)';
+                    setTimeout(() => {
+                        itemEl.remove();
+                        // If cart is now empty, reload to show empty state
+                        if (!document.querySelector('.cart-item')) {
+                            location.reload();
+                        }
+                    }, 300);
+                } else {
+                    // Update quantity and item total
+                    document.getElementById('qty-' + cartKey).textContent = data.new_qty;
+                    document.getElementById('item-total-' + cartKey).textContent = '₹' + data.item_total.toFixed(2);
+                    itemEl.classList.remove('loading');
+                }
+
+                // Update order summary
+                if (data.subtotal !== undefined) {
+                    document.getElementById('summary-subtotal').textContent = '₹' + data.subtotal.toFixed(2);
+                    document.getElementById('summary-tax').textContent      = '₹' + data.tax.toFixed(2);
+                    document.getElementById('summary-total').textContent    = '₹' + data.total.toFixed(2);
+                }
+
+            } catch (err) {
+                console.error(err);
+                itemEl.classList.remove('loading');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<!-- ── Toast Notifications ─────────────────────────────────────────── -->
+<div id="toast-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+        {% set icon = '✅' if category == 'success' else ('❌' if category == 'error' else ('ℹ️' if category == 'info' else '⚠️')) %}
+        <div class="toast toast-{{ category }}" role="alert" aria-live="polite">
+            <span class="toast-icon">{{ icon }}</span>
+            <span class="toast-msg">{{ message }}</span>
+            <button class="toast-close" onclick="this.parentElement.remove()" aria-label="Close">✕</button>
+        </div>
+    {% endfor %}
+    {% endwith %}
+</div>
+
+<script>
+/* Auto-remove toasts after animation ends (4 s) */
+document.querySelectorAll('.toast').forEach(function(t){
+    setTimeout(function(){ if(t.parentElement) t.remove(); }, 4100);
+});
+</script>

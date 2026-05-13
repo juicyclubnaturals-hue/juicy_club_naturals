@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt - Juicy Club Naturals</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background-color: var(--light-bg); margin: 0; padding: 20px; color: var(--text-main); transition: background-color 0.3s; }
+        .receipt-container { max-width: 800px; margin: 40px auto; background: var(--card-bg); padding: 40px; border-radius: 20px; box-shadow: var(--shadow-lg); border: 1px solid var(--input-border); }
+        .header { text-align: center; border-bottom: 2px solid var(--primary-color); padding-bottom: 25px; margin-bottom: 30px; }
+        .header h1 { color: var(--primary-color); margin: 0; font-size: 32px; font-weight: 800; }
+        .header p { margin: 8px 0 0; color: var(--text-muted); font-weight: 500; }
+        
+        .row { display: flex; justify-content: space-between; margin-bottom: 30px; gap: 20px; }
+        .col { flex: 1; font-size: 0.95rem; line-height: 1.6; }
+        .col.right { text-align: right; }
+        .col strong { color: var(--primary-color); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; display: block; margin-bottom: 5px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        th, td { padding: 15px; border-bottom: 1px solid var(--input-border); text-align: left; }
+        th { background-color: var(--primary-color); color: white; font-weight: 700; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; }
+        td { color: var(--text-main); }
+        .text-right { text-align: right; }
+        
+        .totals { width: 300px; margin-left: auto; }
+        .totals table th, .totals table td { background: transparent; color: var(--text-main); border: none; padding: 10px 0; }
+        .totals table tr.grand-total { font-weight: 800; font-size: 1.4em; color: var(--primary-color); border-top: 2px solid var(--primary-color); }
+        
+        .footer { text-align: center; margin-top: 50px; padding-top: 30px; border-top: 1px solid var(--input-border); color: var(--text-muted); font-size: 14px; }
+        
+        .salesperson-only { display: none; background-color: rgba(255, 140, 0, 0.1); padding: 20px; border-left: 5px solid var(--primary-color); margin-bottom: 30px; border-radius: 0 12px 12px 0; }
+        
+        .actions { text-align: center; margin-top: 30px; position: sticky; top: 20px; z-index: 100; }
+        .actions button { background: var(--primary-color); color: white; border: none; padding: 12px 24px; border-radius: 50px; cursor: pointer; font-size: 15px; margin: 0 8px; font-weight: 700; box-shadow: var(--shadow-md); transition: 0.3s; font-family: 'Outfit'; }
+        .actions button:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        
+        @media print {
+            body { background: white !important; padding: 0; color: black !important; }
+            .receipt-container { box-shadow: none; margin: 0; padding: 0; max-width: 100%; border: none; }
+            .actions { display: none; }
+            .header h1 { color: #FF8C00 !important; }
+            th { background-color: #FF8C00 !important; color: white !important; -webkit-print-color-adjust: exact; }
+            .grand-total { color: #FF8C00 !important; }
+        }
+        
+        body.salesperson-mode .salesperson-only { display: block; }
+    </style>
+</head>
+<body>
+
+<div class="actions">
+    <button onclick="setMode('customer')">View Customer Copy</button>
+    <button onclick="setMode('salesperson')">View Salesperson Copy</button>
+    <button onclick="window.print()">Print Receipt</button>
+    <a href="/"><button style="background: #333;">Back to Home</button></a>
+</div>
+
+<div class="receipt-container">
+    <div class="header">
+        <h1>Juicy Club Naturals</h1>
+        <p>100% Natural Fruit Products. No Added Sugar.</p>
+        <h2 id="copy-type">Customer Receipt</h2>
+    </div>
+    
+    <div class="salesperson-only">
+        <strong>Salesperson Internal Notes:</strong>
+        <p>Ensure items are packed securely. Verify payment ID matches gateway records before dispatch.</p>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <strong>Billed To:</strong><br>
+            {{ order.profiles.name }}<br>
+            {{ order.profiles.address }}<br>
+            Phone: {{ order.profiles.phone }}<br>
+            Email: {{ order.profiles.email }}
+        </div>
+        <div class="col right">
+            <strong>Order Details:</strong><br>
+            Order No: {{ order.order_number }}<br>
+            Date: {{ order.created_at[:10] }}<br>
+            Payment ID: {{ order.payment_id }}<br>
+            {% if token %}Token: {{ token }}<br>{% endif %}
+            Status: <span style="color: #16a34a; font-weight: bold;">{{ order.status | title }}</span>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>SKU</th>
+                <th>Item</th>
+                <th>Size</th>
+                <th class="text-right">Qty</th>
+                <th class="text-right">Price</th>
+                <th class="text-right">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for key, item in order.items.items() %}
+            <tr>
+                <td><small style="font-weight:700; color:var(--primary-color);">{{ item.sku or '—' }}</small></td>
+                <td>{{ item.name }}</td>
+                <td>{{ item.size }}</td>
+                <td class="text-right">{{ item.quantity }}</td>
+                <td class="text-right">₹{{ item.price }}</td>
+                <td class="text-right">₹{{ "%.2f"|format(item.price * item.quantity) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="totals">
+        <table>
+            <tr>
+                <td>Subtotal:</td>
+                <td class="text-right">₹{{ order.subtotal }}</td>
+            </tr>
+            <tr>
+                <td>GST (12%):</td>
+                <td class="text-right">₹{{ order.tax }}</td>
+            </tr>
+            <tr class="grand-total">
+                <td>Total:</td>
+                <td class="text-right">₹{{ order.total_amount }}</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="footer">
+        <p>Thank you for shopping with Juicy Club Naturals!</p>
+        <p>For support, contact us at support@juicyclubnaturals.com</p>
+    </div>
+</div>
+
+<script>
+    function setMode(mode) {
+        if (mode === 'salesperson') {
+            document.body.classList.add('salesperson-mode');
+            document.getElementById('copy-type').innerText = 'Salesperson Copy';
+        } else {
+            document.body.classList.remove('salesperson-mode');
+            document.getElementById('copy-type').innerText = 'Customer Receipt';
+        }
+    }
+</script>
+
+</body>
+</html>

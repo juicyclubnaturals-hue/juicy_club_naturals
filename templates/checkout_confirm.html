@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | Juicy Club Naturals</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .checkout-container { max-width: 600px; margin: 100px auto; padding: 2rem; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center;}
+    </style>
+</head>
+<body style="background-color: #f9f9f9;">
+    <header class="navbar scrolled" style="background: var(--card-bg); box-shadow: var(--shadow-sm);">
+        <div class="container nav-container">
+            <a href="/" class="logo">
+                <span class="logo-juicy">Juicy</span> Club <span class="logo-naturals">Naturals</span>
+            </a>
+            <nav class="nav-links">
+                <a href="/cart">Back to Cart</a>
+            </nav>
+        </div>
+    </header>
+
+    {% include '_toasts.html' %}
+
+    <div class="container checkout-container">
+
+        <h2>Confirm Your Order</h2>
+        <div style="background: var(--light-bg); padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0; text-align: left;">
+            <p style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;"><span>Subtotal:</span> <strong>₹{{ "%.2f"|format(subtotal) }}</strong></p>
+            <p style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: var(--text-muted);"><span>GST (12%):</span> <strong>₹{{ "%.2f"|format(tax) }}</strong></p>
+            <hr style="border: none; border-top: 1px solid var(--input-border); margin: 1rem 0;">
+            <p style="display: flex; justify-content: space-between; font-size: 1.3rem; color: var(--primary-color);"><span>Total Amount:</span> <strong>₹{{ "%.2f"|format(total) }}</strong></p>
+        </div>
+        
+        <form action="/checkout" method="POST">
+            <button type="submit" class="btn btn-primary" style="font-size: 1.2rem; padding: 1rem 2rem;">Confirm & Pay</button>
+        </form>
+    </div>
+</body>
+</html>

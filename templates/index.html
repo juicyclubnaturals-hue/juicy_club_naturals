@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juicy Club Naturals | Beauty, Energy & Problem Solving Shots</title>
+    <meta name="description" content="Juicy Club Naturals offers 100% pure natural fruit shots designed for glass skin, gut health, anti-aging, and instant energy. Zero sugar, zero preservatives, 101% natural.">
+    <meta name="keywords" content="glass skin shots, gut health juice, retinol shots, glow shots, energy booster juice, natural anti-aging, beauty juices, cold-pressed shots">
+    
+    <!-- PWA Settings -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#FF8C00">
+    <link rel="apple-touch-icon" href="https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=192&q=80">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="navbar" id="navbar">
+        <div class="container nav-container">
+            <a href="/" class="logo">
+                <span class="logo-juicy">Juicy</span> Club <span class="logo-naturals">Naturals</span>
+            </a>
+            <nav class="nav-links">
+                <a href="#home">Home</a>
+                <a href="#about">Our Story</a>
+                <a href="#menu">Menu</a>
+                <a href="#contact">Contact</a>
+                {% if 'user' in session %}
+                    {% if session.get('is_admin') %}
+                        <a href="/admin">Admin</a>
+                    {% endif %}
+                    <a href="/logout">Logout</a>
+                {% else %}
+                    <a href="/login">Login</a>
+                    <a href="/signup">Sign Up</a>
+                {% endif %}
+                <a id="theme-toggle" style="cursor: pointer;" title="Toggle Dark/Light Mode"><i class="fas fa-moon" id="theme-icon"></i></a>
+            </nav>
+            <div style="display: flex; align-items: center; gap: 1.5rem;">
+                {% if 'user' in session %}
+                <a href="/cart" class="cart-icon" style="position: relative; color: var(--text-main); font-size: 1.2rem;">
+                    <i class="fas fa-shopping-cart" style="color: var(--text-main); transition: color 0.3s;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-main)'"></i>
+                    {% if cart_count > 0 %}
+                    <span class="cart-badge" style="position: absolute; top: -8px; right: -12px; background: var(--primary-color); color: white; border-radius: 50%; padding: 0.1rem 0.4rem; font-size: 0.75rem; font-weight: bold; min-width: 18px; text-align: center;">{{ cart_count }}</span>
+                    {% endif %}
+                </a>
+                {% endif %}
+                <a href="#menu" class="btn btn-primary" style="padding: 0.5rem 1rem;">Order Now</a>
+                <div class="mobile-menu-icon" id="mobile-menu-icon" style="margin-left: 0.5rem;">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    {% include '_toasts.html' %}
+
+
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-overlay"></div>
+        <div class="container hero-content">
+            <div class="hero-text">
+                <span class="badge">Problem-Solving Nature</span>
+                <h1>Sip Your Way to<br>Perfection.</h1>
+                <p>Targeted natural shots for Glass Skin, Gut Health, and Anti-Aging. 100% pure fruit, zero added sugar, and the science of nature in every bottle.</p>
+                <div class="hero-buttons">
+                    <a href="#menu" class="btn btn-primary btn-large">Taste the Purity</a>
+                    <a href="#about" class="btn btn-outline btn-large">Discover Our Story</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- USP / Features Section -->
+    <section class="features">
+        <div class="container features-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-sparkles"></i></div>
+                <h3>Beauty from Within</h3>
+                <p>Our Glass Skin and Retinol shots are packed with vitamins that promote collagen and natural radiance.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-leaf"></i></div>
+                <h3>Gut & Vitality</h3>
+                <p>Specifically formulated shots to soothe your digestive system and boost your daily metabolism.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-bolt-lightning"></i></div>
+                <h3>Natural Energy</h3>
+                <p>Ditch the caffeine. Get a clean, sustainable energy surge from sun-ripened, cold-pressed fruits.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Menu / Product Showcase -->
+    <section class="menu-section" id="menu">
+        <div class="container">
+            <div class="section-header text-center">
+                <h2>Freshly Squeezed Favorites</h2>
+                <p>Explore our range of revitalizing natural juice options, refreshing slushies, and wholesome smoothies.</p>
+            </div>
+            
+            <div class="product-grid">
+                {% if products %}
+                    {% for p in products %}
+                    <div class="product-card">
+                        <div class="product-img-wrapper">
+                            <img src="{{ p.image_url or 'https://images.unsplash.com/photo-1622597467836-f38240662c8b?auto=format&fit=crop&w=600&q=80' }}"
+                                 alt="{{ p.name }}"
+                                 onerror="this.src='https://images.unsplash.com/photo-1622597467836-f38240662c8b?auto=format&fit=crop&w=600&q=80'">
+                            {% if loop.first %}<span class="product-tag">Best Seller</span>{% endif %}
+                            {% if loop.last and not loop.first %}<span class="product-tag">New</span>{% endif %}
+                        </div>
+                        <div class="product-info" style="padding: 1.5rem;">
+                            <div class="product-meta" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+                                <small class="sku-badge" style="background: rgba(255, 140, 0, 0.1); color: var(--primary-color); padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 0.7rem; letter-spacing: 0.5px; text-transform: uppercase;">{{ p.sku }}</small>
+                                {% if p.avg_rating > 0 %}
+                                <div class="rating-mini" style="color: #FFD700; font-size: 0.9rem; font-weight: 700; display: flex; align-items: center; gap: 4px;">
+                                    <i class="fa-solid fa-star"></i> {{ p.avg_rating }}
+                                    <span style="color: var(--text-muted); font-weight: 400; font-size: 0.75rem;">({{ p.review_count }})</span>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <h3 style="margin-bottom: 0.6rem; font-size: 1.4rem; font-weight: 800; line-height: 1.2;">{{ p.name }}</h3>
+                            
+                            {% if p.can_review %}
+                            <div class="verified-buyer" style="margin-bottom: 1.2rem;">
+                                <span style="background: #E8F5E9; color: #2E7D32; font-size: 0.75rem; padding: 4px 10px; border-radius: 6px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.3s;" 
+                                      onclick="toggleReviewForm('{{ p.id }}')"
+                                      onmouseover="this.style.background='#C8E6C9'" 
+                                      onmouseout="this.style.background='#E8F5E9'">
+                                    <i class="fa-solid fa-certificate"></i> Verified Buyer - Write Review
+                                </span>
+                            </div>
+                            {% endif %}
+
+                            <!-- Review Form (Hidden by default) -->
+                            <div id="review-form-{{ p.id }}" class="review-form-box" style="display: none; margin-bottom: 1.5rem; padding: 1.2rem; background: var(--light-bg); border-radius: 12px; border: 2px solid var(--primary-color); box-shadow: var(--shadow-md);">
+                                <form action="/submit_review/{{ p.id }}" method="POST">
+                                    <div style="margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between;">
+                                        <label style="font-size: 0.85rem; font-weight: 700;">Rate your experience:</label>
+                                        <div class="star-rating-input" style="display: flex; gap: 0.4rem; color: #ccc; font-size: 1.2rem;">
+                                            {% for i in range(1, 6) %}
+                                            <input type="radio" name="rating" value="{{ i }}" id="star-{{ p.id }}-{{ i }}" style="display: none;" required>
+                                            <label for="star-{{ p.id }}-{{ i }}" class="star-label-{{ p.id }}" style="cursor: pointer;" onclick="highlightStars('{{ p.id }}', {{ i }})">
+                                                <i class="fa-solid fa-star"></i>
+                                            </label>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <textarea name="comment" placeholder="Tell us what you liked... (Admins will see this)" style="width: 100%; padding: 0.8rem; border-radius: 10px; border: 1px solid var(--input-border); font-size: 0.9rem; margin-bottom: 1rem; background: var(--input-bg); color: var(--text-main); resize: none; font-family: inherit;" rows="3"></textarea>
+                                    <button type="submit" class="btn btn-primary" style="width: 100%; font-weight: 800; padding: 0.8rem;">Submit Review</button>
+                                </form>
+                            </div>
+
+                            <p class="product-desc" style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.8rem; height: 3rem; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">{{ p.description or 'Experience the pure, vibrant flavors of nature in every drop.' }}</p>
+                            
+                            <div class="product-action" style="display: flex; justify-content: space-between; align-items: center; padding-top: 1.2rem; border-top: 1px solid var(--input-border);">
+                                <div class="price-box">
+                                    {% set sizes = p.sizes if p.sizes else [{'size': 'Standard', 'price': 0}] %}
+                                    <span class="price" id="price-{{ p.id }}" style="font-size: 1.8rem; font-weight: 800; color: var(--primary-color);">
+                                        ₹{{ "%.0f"|format(sizes[0].price) }}
+                                    </span>
+                                </div>
+                                
+                                <form action="/add_to_cart/{{ p.id }}" method="POST" style="display:flex; gap: 0.6rem; align-items: center;" onsubmit="updatePriceLabel(this)">
+                                    {% if sizes | length > 1 %}
+                                    <select name="size" class="size-select"
+                                            onchange="updatePrice(this, '{{ p.id }}', {{ sizes | tojson }})"
+                                            style="padding: 0.6rem; border-radius: 10px; border: 1px solid var(--input-border); font-family: 'Outfit', sans-serif; font-size: 0.85rem; background: var(--input-bg); color: var(--text-main); cursor: pointer; font-weight: 600;">
+                                        {% for s in sizes %}
+                                        <option value="{{ s.size }}">{{ s.size }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    {% else %}
+                                    <input type="hidden" name="size" value="{{ sizes[0].size }}">
+                                    {% endif %}
+                                    <button type="submit" class="btn btn-primary" style="width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 0;">
+                                        <i class="fa-solid fa-cart-plus" style="font-size: 1.2rem;"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:3rem 0;">
+                        <p style="font-size:1.1rem;">🥤 No products available yet. Check back soon!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Our Process / About -->
+    <section class="process-section" id="about">
+        <div class="container">
+            <div class="process-content">
+                <div class="process-text">
+                    <h2>Nature's Solution to Modern Problems</h2>
+                    <p>We believe that nature has the answer to every health and beauty goal. By handpicking the ripest fruits and using cold-press technology, we preserve the bioactive compounds that help you achieve glowing skin and a healthy gut.</p>
+                    <p><strong>Science of Purity. Power of Nature.</strong></p>
+                    <ul class="process-list">
+                        <li><i class="fa-solid fa-check text-primary"></i> Ethically Sourced Ingredients</li>
+                        <li><i class="fa-solid fa-check text-primary"></i> Cold-Pressed to Perfection</li>
+                        <li><i class="fa-solid fa-check text-primary"></i> Eco-Friendly Glass Bottles</li>
+                    </ul>
+                </div>
+                <div class="process-image">
+                    <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80" alt="Fresh fruits on a table" class="rounded-image shadow-large">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <div class="container text-center">
+            <h2>What the Club Says</h2>
+            <div class="testimonial-grid">
+                <div class="testimonial-card">
+                    <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                    <p>"Finally, a juice that doesn't taste like syrup! The watermelon slushie is my absolute favorite post-workout treat."</p>
+                    <h4>- Sarah J.</h4>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                    <p>"You can literally taste how fresh the fruit is. Love that there are zero preservatives. My kids love the Berry Blast."</p>
+                    <h4>- Mark T.</h4>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container text-center">
+            <h2>Ready to Quench Your Thirst?</h2>
+            <p>Join the Juicy Club today and experience the true taste of nature.</p>
+            <a href="#menu" class="btn btn-primary btn-large cta-btn-animate">Shop Fresh Juices</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <a href="/" class="logo logo-footer">
+                    <span class="logo-juicy">Juicy</span> Club <span class="logo-naturals">Naturals</span>
+                </a>
+                <p>Premium problem-solving shots for beauty, energy, and gut health. 101% natural ingredients, zero compromise.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#menu">Shop Juices</a></li>
+                    <li><a href="#about">Our Story</a></li>
+                    <li><a href="#">FAQ</a></li>
+                </ul>
+            </div>
+            <div class="footer-newsletter">
+                <h4>Join the Juicy Club</h4>
+                <p>Subscribe for exclusive offers and fresh news.</p>
+                <form class="newsletter-form" id="newsletter-form">
+                    <input type="email" placeholder="Enter your email" required>
+                    <button type="submit" class="btn btn-primary">Subscribe</button>
+                </form>
+            </div>
+        </div>
+        <div class="footer-bottom text-center">
+            <p>&copy; 2026 Juicy Club Naturals. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+    /* Update displayed price when size dropdown changes */
+    function updatePrice(selectEl, productId, sizes) {
+        const chosen = selectEl.value;
+        const match  = sizes.find(s => s.size === chosen);
+        if (match) {
+            const el = document.getElementById('price-' + productId);
+            if (el) el.textContent = '₹' + Math.round(match.price);
+        }
+    }
+
+    /* Register Service Worker for PWA */
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+        });
+    }
+    /* Review System Helpers */
+    function toggleReviewForm(pid) {
+        const form = document.getElementById('review-form-' + pid);
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function highlightStars(pid, rating) {
+        const labels = document.querySelectorAll('.star-label-' + pid);
+        labels.forEach((label, index) => {
+            if (index < rating) {
+                label.style.color = '#FFD700';
+            } else {
+                label.style.color = '#ccc';
+            }
+        });
+    }
+
+    function updatePriceLabel(form) {
+        const btn = form.querySelector('button');
+        const icon = btn.querySelector('i');
+        const originalIconClass = icon.className;
+        
+        // Show loading state
+        icon.className = 'fas fa-spinner fa-spin';
+        btn.style.pointerEvents = 'none';
+        btn.style.opacity = '0.8';
+        
+        // The form will submit and page will reload, so we don't strictly need to revert,
+        // but it's good practice in case submission is cancelled or handled via AJAX later.
+    }
+    </script>
+    <!-- Floating Checkout Button -->
+    {% if 'user' in session and cart_count > 0 %}
+    <a href="/cart" class="floating-checkout">
+        <i class="fas fa-shopping-cart"></i> 
+        Checkout ({{ cart_count }})
+    </a>
+    {% endif %}
+</body>
+</html>
+

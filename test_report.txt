@@ -1,0 +1,29 @@
+==================================================
+   JUICY CLUB NATURALS - AUTOMATED TEST REPORT    
+==================================================
+
+--- TEST DETAILS ---
+test_01_home_page_loads (__main__.AppTestCase.test_01_home_page_loads)
+Test if the home page loads successfully ... ok
+test_02_login_page_loads (__main__.AppTestCase.test_02_login_page_loads)
+Test if the login page loads ... ok
+test_03_cart_logic_gst_12 (__main__.AppTestCase.test_03_cart_logic_gst_12)
+Test if cart total logic correctly applies 12% GST ... ok
+test_04_admin_protection (__main__.AppTestCase.test_04_admin_protection)
+Test if admin route redirects non-admins to home ... ok
+test_05_checkout_protection (__main__.AppTestCase.test_05_checkout_protection)
+Test if checkout route redirects anonymous users to login ... ok
+test_06_cart_page_protection (__main__.AppTestCase.test_06_cart_page_protection)
+Test if cart page redirects anonymous users to login ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.759s
+
+OK
+
+--- SUMMARY ---
+Total Tests Run : 6
+Failures        : 0
+Errors          : 0
+
+STATUS: [ PASS ] All systems look good!

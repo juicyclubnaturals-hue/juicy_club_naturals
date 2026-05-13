@@ -1,0 +1,22 @@
+{
+  "name": "Juicy Club Naturals",
+  "short_name": "Juicy Club",
+  "description": "101% Pure Natural Fruit Juices & Slushies",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#FF8C00",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=192&q=80",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=512&q=80",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

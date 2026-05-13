@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Juicy Club Naturals - Your Beauty & Energy Partner</title>
+    <meta name="description" content="Login to your Juicy Club Naturals account to order your favorite natural problem-solving shots.">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .auth-container { max-width: 400px; margin: 100px auto; padding: 2rem; background: var(--card-bg); border-radius: 12px; box-shadow: var(--shadow-sm); }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
+        .form-group input { width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 6px; }
+        .btn-full { width: 100%; text-align: center; }
+    </style>
+</head>
+<body>
+    <!-- Simple Header -->
+    <header class="navbar scrolled" id="navbar" style="background: var(--card-bg); box-shadow: var(--shadow-sm);">
+        <div class="container nav-container">
+            <a href="/" class="logo">
+                <span class="logo-juicy">Juicy</span> Club <span class="logo-naturals">Naturals</span>
+            </a>
+            <nav class="nav-links">
+                <a href="/">Home</a>
+                <a href="/signup">Sign Up</a>
+                <a id="theme-toggle" style="cursor: pointer;" title="Toggle Dark/Light Mode"><i class="fas fa-moon" id="theme-icon"></i></a>
+            </nav>
+            <div class="mobile-menu-icon" id="mobile-menu-icon">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <div class="container auth-container">
+        <h2 style="text-align: center; margin-bottom: 2rem; color: var(--primary-color);">Welcome Back</h2>
+        
+        {% include '_toasts.html' %}
+
+
+        <form action="/login" method="POST">
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" name="email" required placeholder="john@example.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <div style="position: relative;">
+                    <input type="password" id="password" name="password" required>
+                    <span class="toggle-password" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 0.85rem; font-weight: 600; color: var(--primary-color); user-select: none;">Show</span>
+                </div>
+            </div>
+            <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem; margin-top: -0.5rem;">
+                <input type="checkbox" id="remember_me" name="remember_me" value="1" style="width: 16px; height: 16px; accent-color: var(--primary-color);">
+                <label for="remember_me" style="font-size: 0.9rem; font-weight: 500; cursor: pointer; margin: 0;">Remember me for 30 days</label>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full" style="margin-top: 1rem;">Login</button>
+        </form>
+        <p style="text-align: center; margin-top: 1rem;">Don't have an account? <a href="/signup" style="color: var(--primary-color);">Sign up here</a></p>
+    </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment | Juicy Club Naturals</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .checkout-container { max-width: 600px; margin: 100px auto; padding: 2rem; background: var(--card-bg); border-radius: 12px; box-shadow: var(--shadow-sm); text-align: center;}
+    </style>
+</head>
+<body>
+    <header class="navbar scrolled" id="navbar" style="background: var(--card-bg); box-shadow: var(--shadow-sm);">
+        <div class="container nav-container">
+            <a href="/" class="logo">
+                <span class="logo-juicy">Juicy</span> Club <span class="logo-naturals">Naturals</span>
+            </a>
+            <nav class="nav-links">
+                <a href="/cart">← Back to Cart</a>
+                <a id="theme-toggle" style="cursor: pointer;" title="Toggle Dark/Light Mode"><i class="fas fa-moon" id="theme-icon"></i></a>
+                <a href="/logout">Logout</a>
+            </nav>
+        </div>
+    </header>
+
+    {% include '_toasts.html' %}
+
+    <div class="container checkout-container">
+
+        <h2>Complete Your Payment</h2>
+        <p>Please wait while we redirect you to the payment gateway, or click the button below.</p>
+        
+        <form action="/payment/success" method="POST" id="razorpay-form">
+            <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+            <input type="hidden" name="razorpay_order_id" id="razorpay_order_id" value="{{ razorpay_order_id }}">
+            <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+        </form>
+
+        <button id="rzp-button1" class="btn btn-primary">Pay Now</button>
+    </div>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        var options = {
+            "key": "{{ key_id }}",
+            "amount": "{{ amount }}",
+            "currency": "INR",
+            "name": "Juicy Club Naturals",
+            "description": "Order Payment",
+            "order_id": "{{ razorpay_order_id }}",
+            "handler": function (response){
+                document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+                document.getElementById('razorpay_signature').value = response.razorpay_signature;
+                document.getElementById('razorpay-form').submit();
+            },
+            "prefill": {
+                "email": "{{ user_email }}"
+            },
+            "theme": {
+                "color": "#FF8C00"
+            }
+        };
+        var rzp1 = new Razorpay(options);
+        rzp1.on('payment.failed', function (response){
+            alert("Payment failed: " + response.error.description);
+        });
+        document.getElementById('rzp-button1').onclick = function(e){
+            rzp1.open();
+            e.preventDefault();
+        }
+        
+        // Auto-open
+        window.onload = function() {
+            rzp1.open();
+        }
+    </script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
