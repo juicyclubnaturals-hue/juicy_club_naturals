@@ -562,7 +562,10 @@ def checkout():
             flash('Payment gateway not configured.', 'error')
             return redirect(url_for('cart'))
 
-        order_receipt   = f"order_{uuid.uuid4().hex[:10]}"
+        # Professional Branded Order ID: JCN_XXXXX_0000
+        rand_chars = ''.join(random.choices(string.ascii_uppercase, k=5))
+        rand_nums  = ''.join(random.choices(string.digits, k=4))
+        order_receipt = f"JCN_{rand_chars}_{rand_nums}"
         amount_in_paise = int(total_amount * 100)
 
         try:
@@ -675,16 +678,37 @@ def my_orders():
         return redirect(url_for('login'))
     
     try:
-        # Fetch all orders for the user, ordered by most recent
+        # Fetch all orders for the user
         resp = supabase.table('orders').select('*').eq('user_id', session['user']).order('created_at', desc=True).execute()
-        orders = resp.data or []
+        raw_orders = resp.data or []
         
-        # Calculate totals and counts for a nice summary
-        paid_count = sum(1 for o in orders if o.get('status') == 'paid')
+        # CLEAN DATA BEFORE SENDING TO TEMPLATE (The "Best Logic Ever")
+        orders = []
+        paid_count = 0
+        for o in raw_orders:
+            # Safely get items list
+            items_list = o.get('items', [])
+            if isinstance(items_list, dict): # Handle if it's a dict instead of list
+                items_list = list(items_list.values())
+            
+            # Pre-calculate values so Jinja doesn't have to
+            processed_order = {
+                'order_number': o.get('order_number', 'N/A'),
+                'created_at': o.get('created_at', '')[:10],
+                'status': o.get('status', 'pending'),
+                'total_amount': float(o.get('total_amount', 0)),
+                'payment_id': o.get('payment_id', '—'),
+                'razorpay_order_id': o.get('razorpay_order_id', ''),
+                'item_count': len(items_list)
+            }
+            orders.append(processed_order)
+            if processed_order['status'] == 'paid':
+                paid_count += 1
         
         return render_template('orders.html', orders=orders, paid_count=paid_count)
     except Exception as e:
-        flash(f'Error fetching orders: {str(e)}', 'error')
+        print(f"[ORDERS ERROR] {str(e)}")
+        flash('We encountered a problem loading your history. Please try again.', 'error')
         return redirect(url_for('home'))
 
 # ── Admin ─────────────────────────────────────────────────────────────────────

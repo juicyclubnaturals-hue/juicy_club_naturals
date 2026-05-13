@@ -52,7 +52,9 @@
 
 <div class="actions">
     <button onclick="setMode('customer')">View Customer Copy</button>
+    {% if session.is_admin %}
     <button onclick="setMode('salesperson')">View Salesperson Copy</button>
+    {% endif %}
     <button onclick="window.print()">Print Receipt</button>
     <a href="/my-orders"><button style="background: #555;">Back to My Orders</button></a>
     <a href="/"><button style="background: #333;">Back to Home</button></a>
@@ -65,10 +67,13 @@
         <h2 id="copy-type">Customer Receipt</h2>
     </div>
     
+    {% if session.is_admin %}
     <div class="salesperson-only">
         <strong>Salesperson Internal Notes:</strong>
         <p>Ensure items are packed securely. Verify payment ID matches gateway records before dispatch.</p>
+        <p><strong>GSTIN:</strong> 06ABCDE1234F1Z5 | <strong>Store Code:</strong> JCN-GUR-01</p>
     </div>
+    {% endif %}
 
     <div class="row">
         <div class="col">
@@ -80,7 +85,7 @@
         </div>
         <div class="col right">
             <strong>Order Details:</strong><br>
-            Order No: {{ order.order_number }}<br>
+            Order No: <span style="font-size: 1.2rem; font-weight: 800; color: var(--primary-color);">{{ order.order_number }}</span><br>
             Date: {{ order.created_at[:10] }}<br>
             Payment ID: {{ order.payment_id }}<br>
             {% if token %}Token: {{ token }}<br>{% endif %}

@@ -184,29 +184,29 @@
         <div class="order-card">
             <div class="order-header">
                 <div>
-                    <span class="order-id">Order #{{ order['order_number'] }}</span>
-                    <div class="order-date">{{ order['created_at'][:10] }}</div>
+                    <span class="order-id" style="font-size: 1.2rem; font-weight: 800; color: var(--primary-color);">#{{ order.order_number }}</span>
+                    <div class="order-date" style="font-weight: 600;">{{ order.created_at }}</div>
                 </div>
-                <span class="status-badge status-{{ 'paid' if order['status'] == 'paid' else 'pending' }}">
-                    {{ order['status'] | title }}
+                <span class="status-badge status-{{ 'paid' if order.status == 'paid' else 'pending' }}">
+                    {{ order.status | title }}
                 </span>
             </div>
             <div class="order-body">
                 <div class="info-group">
                     <label>Total Amount</label>
-                    <span>₹{{ "%.2f"|format(order['total_amount']) }}</span>
+                    <span>₹{{ "%.2f"|format(order.total_amount) }}</span>
                 </div>
                 <div class="info-group">
                     <label>Items</label>
-                    <span>{{ order['items'] | length }} Products</span>
+                    <span>{{ order.item_count }} Products</span>
                 </div>
                 <div class="info-group">
                     <label>Payment ID</label>
-                    <span style="font-size: 0.85rem;">{{ order['payment_id'] or '—' }}</span>
+                    <span style="font-size: 0.85rem;">{{ order.payment_id }}</span>
                 </div>
             </div>
             <div class="order-actions">
-                {% if order['status'] == 'paid' %}
+                {% if order.status == 'paid' %}
                 <a href="/receipt/{{ order.razorpay_order_id }}" class="btn btn-primary btn-view"
                     style="background: #16a34a; border-color: #16a34a;">
                     <i class="fas fa-receipt"></i> View Official Receipt
