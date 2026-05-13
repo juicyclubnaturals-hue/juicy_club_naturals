@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop All | Juicy Club Naturals</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .shop-layout { display: grid; grid-template-columns: 280px 1fr; gap: 2rem; margin-top: 100px; padding-bottom: 5rem; }
+        .filters-sidebar { position: sticky; top: 100px; height: fit-content; background: var(--card-bg); padding: 2rem; border-radius: 20px; border: 1px solid var(--input-border); box-shadow: var(--shadow-md); }
+        .filter-group { margin-bottom: 2rem; }
+        .filter-group h4 { margin-bottom: 1rem; color: var(--primary-color); font-weight: 800; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
+        .filter-option { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.8rem; cursor: pointer; color: var(--text-muted); transition: 0.3s; }
+        .filter-option:hover { color: var(--primary-color); }
+        .filter-option input { accent-color: var(--primary-color); width: 18px; height: 18px; cursor: pointer; }
+        
+        .search-bar { width: 100%; margin-bottom: 2rem; position: relative; }
+        .search-bar input { width: 100%; padding: 1rem 1rem 1rem 3rem; border-radius: 15px; border: 1px solid var(--input-border); background: var(--card-bg); color: var(--text-main); font-family: inherit; font-size: 1rem; transition: 0.3s; }
+        .search-bar i { position: absolute; left: 1.2rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        .search-bar input:focus { border-color: var(--primary-color); outline: none; box-shadow: 0 0 0 4px rgba(255, 140, 0, 0.1); }
+
+        @media (max-width: 992px) {
+            .shop-layout { grid-template-columns: 1fr; }
+            .filters-sidebar { position: static; margin-bottom: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header (Same as Index) -->
+    <header class="navbar" style="position: fixed; top: 0; width: 100%; z-index: 1000; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px);">
+        <div class="container nav-container">
+            <a href="/" class="logo">
+                <span class="logo-juicy">Juicy</span> Club <span class="logo-naturals">Naturals</span>
+            </a>
+            <nav class="nav-links">
+                <a href="/">Home</a>
+                <a href="/products" style="color: var(--primary-color); font-weight: 800;">Shop All</a>
+                {% if 'user' in session %}
+                <a href="/my-orders">My Orders</a>
+                <a href="/logout">Logout</a>
+                {% else %}
+                <a href="/login">Login</a>
+                {% endif %}
+            </nav>
+            <div class="header-actions">
+                <a href="/cart" class="cart-btn" style="position: relative; text-decoration: none; color: var(--text-main);">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    {% if cart_count > 0 %}<span class="cart-badge">{{ cart_count }}</span>{% endif %}
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="shop-layout">
+            <!-- Sidebar Filters -->
+            <aside class="filters-sidebar">
+                <div class="filter-group">
+                    <h4>Categories</h4>
+                    <label class="filter-option">
+                        <input type="checkbox" class="category-filter" value="all" checked> <span>All Products</span>
+                    </label>
+                    {% for cat in categories %}
+                    <label class="filter-option">
+                        <input type="checkbox" class="category-filter" value="{{ cat }}"> <span>{{ cat }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+
+                <div class="filter-group">
+                    <h4>Price Range</h4>
+                    <label class="filter-option"><input type="radio" name="price" value="all" checked> <span>All Prices</span></label>
+                    <label class="filter-option"><input type="radio" name="price" value="0-50"> <span>Under ₹50</span></label>
+                    <label class="filter-option"><input type="radio" name="price" value="50-100"> <span>₹50 - ₹100</span></label>
+                    <label class="filter-option"><input type="radio" name="price" value="100+"> <span>Over ₹100</span></label>
+                </div>
+                
+                <div class="filter-group">
+                    <h4>Rating</h4>
+                    <label class="filter-option"><input type="radio" name="rating" value="4+"> <span>4+ Stars</span></label>
+                    <label class="filter-option"><input type="radio" name="rating" value="all" checked> <span>All Ratings</span></label>
+                </div>
+            </aside>
+
+            <!-- Product Grid Area -->
+            <main class="shop-main">
+                <div class="search-bar">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="product-search" placeholder="Search for functional wellness shots...">
+                </div>
+
+                <div class="product-grid" id="main-product-grid">
+                    {% for p in products %}
+                    <div class="product-card" data-category="{{ p.category }}" data-price="{{ p.sizes[0].price if p.sizes else 0 }}" data-rating="{{ p.avg_rating }}">
+                        <div class="product-img-wrapper">
+                            <img src="{{ p.image_url }}" alt="{{ p.name }}">
+                            <span class="product-tag">{{ p.category }}</span>
+                        </div>
+                        <div class="product-info" style="padding: 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <small class="sku-badge">{{ p.sku }}</small>
+                                {% if p.avg_rating > 0 %}
+                                <div class="rating-mini"><i class="fa-solid fa-star"></i> {{ p.avg_rating }}</div>
+                                {% endif %}
+                            </div>
+                            <h3 style="font-size: 1.3rem; font-weight: 800;">{{ p.name }}</h3>
+                            <p class="product-desc">{{ p.description }}</p>
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; border-top: 1px solid var(--input-border); padding-top: 1rem;">
+                                <span class="price" style="font-size: 1.5rem; font-weight: 800; color: var(--primary-color);">₹{{ "%.0f"|format(p.sizes[0].price if p.sizes else 0) }}</span>
+                                <form action="/add_to_cart/{{ p.id }}" method="POST">
+                                    <input type="hidden" name="size" value="{{ p.sizes[0].size if p.sizes else 'Standard' }}">
+                                    <button type="submit" class="btn btn-primary" style="padding: 0.8rem 1.2rem;"><i class="fa-solid fa-cart-plus"></i></button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Live Filtering Logic -->
+    <script>
+        const searchInput = document.getElementById('product-search');
+        const cards = document.querySelectorAll('.product-card');
+        const catFilters = document.querySelectorAll('.category-filter');
+        const priceFilters = document.querySelectorAll('input[name="price"]');
+        const ratingFilters = document.querySelectorAll('input[name="rating"]');
+
+        function filterProducts() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const activeCats = Array.from(catFilters).filter(i => i.checked).map(i => i.value);
+            const activePrice = document.querySelector('input[name="price"]:checked').value;
+            const activeRating = document.querySelector('input[name="rating"]:checked').value;
+
+            cards.forEach(card => {
+                const name = card.querySelector('h3').innerText.toLowerCase();
+                const desc = card.querySelector('.product-desc').innerText.toLowerCase();
+                const cat = card.getAttribute('data-category');
+                const price = parseFloat(card.getAttribute('data-price'));
+                const rating = parseFloat(card.getAttribute('data-rating'));
+
+                let show = true;
+
+                // Search Filter
+                if (searchTerm && !name.includes(searchTerm) && !desc.includes(searchTerm)) show = false;
+
+                // Category Filter
+                if (!activeCats.includes('all') && !activeCats.includes(cat)) show = false;
+
+                // Price Filter
+                if (activePrice === '0-50' && price > 50) show = false;
+                if (activePrice === '50-100' && (price < 50 || price > 100)) show = false;
+                if (activePrice === '100+' && price < 100) show = false;
+
+                // Rating Filter
+                if (activeRating === '4+' && rating < 4) show = false;
+
+                card.style.display = show ? 'block' : 'none';
+            });
+        }
+
+        searchInput.addEventListener('input', filterProducts);
+        catFilters.forEach(f => f.addEventListener('change', filterProducts));
+        priceFilters.forEach(f => f.addEventListener('change', filterProducts));
+        ratingFilters.forEach(f => f.addEventListener('change', filterProducts));
+    </script>
+</body>
+</html>

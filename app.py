@@ -204,7 +204,6 @@ def home():
         cart_items = get_db_cart(session['user'])
         cart_count = sum(item['quantity'] for item in cart_items.values())
         
-        # Fetch purchased product IDs for review validation
         try:
             orders_resp = supabase.table('orders').select('items').eq('user_id', session['user']).eq('status', 'paid').execute()
             p_ids = set()
@@ -216,53 +215,64 @@ def home():
             purchased_product_ids = list(p_ids)
         except: pass
     
-    # Fetch active products
     products = []
-    if supabase:
-        try:
-            resp = supabase.table('products').select('*').eq('is_active', True).execute()
-            products = resp.data or []
-            
-            # Step 1: Initialize defaults for all products (Prevents Jinja2 UndefinedError)
-            for p in products:
-                p['avg_rating'] = 0
-                p['review_count'] = 0
-                p['can_review'] = str(p['id']) in purchased_product_ids
-                if not p.get('sku'): p['sku'] = ''
+    top_reviews = []
+    try:
+        p_resp = supabase.table('products').select('*').eq('is_active', True).execute()
+        products = p_resp.data or []
+        
+        r_resp = supabase.table('reviews').select('*, profiles(name), products(name)').order('rating', desc=True).limit(5).execute()
+        top_reviews = r_resp.data or []
 
-            # Step 2: Fetch and map review data
-            try:
-                reviews_resp = supabase.table('reviews').select('product_id, rating').execute()
-                reviews_data = reviews_resp.data or []
-                
-                rating_map = {}
-                for r in reviews_data:
-                    pid = str(r['product_id'])
-                    if pid not in rating_map:
-                        rating_map[pid] = []
-                    rating_map[pid].append(r['rating'])
-                
-                for p in products:
-                    pid = str(p['id'])
-                    # Auto-generate SKU if missing (migration)
-                    if not p.get('sku'):
-                        new_sku = generate_sku()
-                        try:
-                            supabase.table('products').update({'sku': new_sku}).eq('id', pid).execute()
-                            p['sku'] = new_sku
-                        except: pass
+        reviews_resp = supabase.table('reviews').select('product_id, rating').execute()
+        reviews_data = reviews_resp.data or []
+        rating_map = {}
+        for r in reviews_data:
+            pid = str(r['product_id'])
+            if pid not in rating_map: rating_map[pid] = []
+            rating_map[pid].append(r['rating'])
+        
+        for p in products:
+            pid = str(p['id'])
+            p['avg_rating'] = 0
+            p['review_count'] = 0
+            p['can_review'] = pid in purchased_product_ids
+            ratings = rating_map.get(pid, [])
+            if ratings:
+                p['avg_rating'] = round(sum(ratings) / len(ratings), 1)
+                p['review_count'] = len(ratings)
+    except Exception as e:
+        print(f"Error in home: {e}")
 
-                    ratings = rating_map.get(pid, [])
-                    if ratings:
-                        p['avg_rating'] = round(sum(ratings) / len(ratings), 1)
-                        p['review_count'] = len(ratings)
-            except Exception as re:
-                print(f"Error calculating ratings: {re}")
-                    
-        except Exception as e:
-            print("Error fetching products:", e)
+    return render_template('index.html', products=products, top_reviews=top_reviews, cart_count=cart_count)
 
-    return render_template('index.html', products=products, cart_count=cart_count)
+@app.route('/products')
+def products_page():
+    cart_count = 0
+    if 'user' in session:
+        cart_items = get_db_cart(session['user'])
+        cart_count = sum(item['quantity'] for item in cart_items.values())
+    try:
+        resp = supabase.table('products').select('*').eq('is_active', True).execute()
+        products = resp.data or []
+        reviews_resp = supabase.table('reviews').select('product_id, rating').execute()
+        reviews_data = reviews_resp.data or []
+        rating_map = {}
+        for r in reviews_data:
+            pid = str(r['product_id'])
+            if pid not in rating_map: rating_map[pid] = []
+            rating_map[pid].append(r['rating'])
+        for p in products:
+            pid = str(p['id'])
+            ratings = rating_map.get(pid, [])
+            p['avg_rating'] = round(sum(ratings) / len(ratings), 1) if ratings else 0
+            p['review_count'] = len(ratings)
+            if not p.get('category'): p['category'] = 'Wellness'
+        categories = sorted(list(set([p.get('category', 'Wellness') for p in products])))
+        return render_template('products.html', products=products, categories=categories, cart_count=cart_count)
+    except Exception as e:
+        print(f"Error in products page: {e}")
+        return redirect(url_for('home'))
 
 @app.route('/submit_review/<product_id>', methods=['POST'])
 def submit_review(product_id):

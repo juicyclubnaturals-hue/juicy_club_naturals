@@ -38,6 +38,7 @@
             </a>
             <nav class="nav-links">
                 <a href="#home">Home</a>
+                <a href="/products" style="font-weight: 800; color: var(--primary-color);">Shop All</a>
                 <a href="#about">Our Story</a>
                 <a href="#menu">Menu</a>
                 <a href="#contact">Contact</a>
@@ -272,24 +273,24 @@
     <!-- Testimonials -->
     <section class="testimonials">
         <div class="container text-center">
-            <h2>What the Club Says</h2>
+            <h2>Real Club Results</h2>
             <div class="testimonial-grid">
-                <div class="testimonial-card">
-                    <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                            class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                            class="fa-solid fa-star"></i></div>
-                    <p>"The results are real! Since switching to these functional shots, my energy levels and skin
-                        clarity have improved noticeably. A daily wellness must-have."</p>
-                    <h4>- Sarah J.</h4>
-                </div>
-                <div class="testimonial-card">
-                    <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                            class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                            class="fa-solid fa-star"></i></div>
-                    <p>"You can literally taste the purity. I love that there are zero preservatives. It's the most
-                        refreshing way to start my morning routine."</p>
-                    <h4>- Mark T.</h4>
-                </div>
+                {% if top_reviews %}
+                    {% for r in top_reviews %}
+                    <div class="testimonial-card">
+                        <div class="stars">
+                            {% for i in range(r.rating) %}<i class="fa-solid fa-star"></i>{% endfor %}
+                        </div>
+                        <p>"{{ r.comment }}"</p>
+                        <h4>- {{ r.profiles.name if r.profiles else 'Verified Buyer' }}</h4>
+                        <small style="color: var(--primary-color); font-weight: 700;">Purchased: {{ r.products.name if r.products else 'Wellness Shot' }}</small>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="testimonial-card" style="grid-column: 1/-1;">
+                        <p>Our customers are currently experiencing their wellness journey. Be the first to share your results!</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </section>
