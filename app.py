@@ -566,6 +566,10 @@ def checkout():
 
 @app.route('/payment/success', methods=['POST'])
 def payment_success():
+    payment_id       = request.form.get('razorpay_payment_id')
+    razorpay_order_id = request.form.get('razorpay_order_id')
+    signature        = request.form.get('razorpay_signature')
+
     # Validate incoming data
     if not all([payment_id, razorpay_order_id, signature]):
         print(f"[PAYMENT] ERROR: Missing payment data. p_id={payment_id}, o_id={razorpay_order_id}, sig={signature}")
