@@ -434,8 +434,16 @@ def add_to_cart(product_id):
 
     try:
         upsert_db_cart(session['user'], product_id, size, 1)
-        flash(f"{product['name']} ({size}) added to cart!", 'success')
+        msg = f"{product['name']} ({size}) added to cart!"
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            # Calculate new cart count
+            cart_items = get_db_cart(session['user'])
+            cart_count = sum(item['quantity'] for item in cart_items.values())
+            return jsonify({'success': True, 'message': msg, 'cart_count': cart_count})
+        flash(msg, 'success')
     except Exception as e:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': False, 'message': str(e)}), 400
         flash(f'Could not add to cart: {str(e)}', 'error')
 
     return redirect(url_for('home') + "#menu")

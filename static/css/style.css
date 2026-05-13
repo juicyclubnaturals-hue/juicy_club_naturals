@@ -853,7 +853,7 @@ footer {
     }
 
     .nav-links a {
-        color: var(--dark-bg);
+        color: var(--text-main);
     }
 
     .navbar .btn {

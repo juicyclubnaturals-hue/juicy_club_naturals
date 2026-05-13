@@ -129,6 +129,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 3000);
         });
     }
-
-    }
 });
+
+// Global function to show premium toasts
+function showToast(message, category = 'success') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    
+    const icons = { 'success': '✅', 'error': '❌', 'info': 'ℹ️', 'warning': '⚠️' };
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${category}`;
+    toast.innerHTML = `
+        <span class="toast-icon">${icons[category] || 'ℹ️'}</span>
+        <span class="toast-msg">${message}</span>
+        <button class="toast-close" onclick="this.parentElement.remove()">✕</button>
+    `;
+    
+    container.appendChild(toast);
+    setTimeout(() => { if(toast.parentElement) toast.remove(); }, 4100);
+}

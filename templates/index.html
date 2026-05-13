@@ -45,9 +45,11 @@
                     <a href="/login">Login</a>
                     <a href="/signup">Sign Up</a>
                 {% endif %}
-                <a id="theme-toggle" style="cursor: pointer;" title="Toggle Dark/Light Mode"><i class="fas fa-moon" id="theme-icon"></i></a>
             </nav>
-            <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <div class="header-actions" style="display: flex; align-items: center; gap: 1.2rem;">
+                <a id="theme-toggle" style="cursor: pointer; color: var(--text-main); font-size: 1.1rem;" title="Toggle Dark/Light Mode">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </a>
                 {% if 'user' in session %}
                 <a href="/cart" class="cart-icon" style="position: relative; color: var(--text-main); font-size: 1.2rem;">
                     <i class="fas fa-shopping-cart" style="color: var(--text-main); transition: color 0.3s;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-main)'"></i>
@@ -56,8 +58,8 @@
                     {% endif %}
                 </a>
                 {% endif %}
-                <a href="#menu" class="btn btn-primary" style="padding: 0.5rem 1rem;">Order Now</a>
-                <div class="mobile-menu-icon" id="mobile-menu-icon" style="margin-left: 0.5rem;">
+                <a href="#menu" class="btn btn-primary nav-order-btn" style="padding: 0.5rem 1rem;">Order Now</a>
+                <div class="mobile-menu-icon" id="mobile-menu-icon" style="cursor: pointer; font-size: 1.2rem; color: var(--text-main);">
                     <i class="fas fa-bars"></i>
                 </div>
             </div>
@@ -177,7 +179,7 @@
                                     </span>
                                 </div>
                                 
-                                <form action="/add_to_cart/{{ p.id }}" method="POST" style="display:flex; gap: 0.6rem; align-items: center;" onsubmit="updatePriceLabel(this)">
+                                <form action="/add_to_cart/{{ p.id }}" method="POST" style="display:flex; gap: 0.6rem; align-items: center;" onsubmit="handleAddToCart(event, this)">
                                     {% if sizes | length > 1 %}
                                     <select name="size" class="size-select"
                                             onchange="updatePrice(this, '{{ p.id }}', {{ sizes | tojson }})"
@@ -334,18 +336,59 @@
         });
     }
 
-    function updatePriceLabel(form) {
+    async function handleAddToCart(event, form) {
+        event.preventDefault();
+        
         const btn = form.querySelector('button');
         const icon = btn.querySelector('i');
         const originalIconClass = icon.className;
         
+        // Check if user is logged in (session check is on server, but we check if cart icon exists)
+        const cartIcon = document.querySelector('.cart-icon');
+        if (!cartIcon && !document.querySelector('.floating-checkout')) {
+            window.location.href = '/login';
+            return;
+        }
+
         // Show loading state
         icon.className = 'fas fa-spinner fa-spin';
         btn.style.pointerEvents = 'none';
-        btn.style.opacity = '0.8';
+        btn.style.opacity = '0.7';
         
-        // The form will submit and page will reload, so we don't strictly need to revert,
-        // but it's good practice in case submission is cancelled or handled via AJAX later.
+        const formData = new FormData(form);
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showToast(data.message, 'success');
+                // Update cart badges
+                const badges = document.querySelectorAll('.cart-badge');
+                badges.forEach(b => {
+                    b.textContent = data.cart_count;
+                    b.style.display = 'block';
+                });
+                
+                // If badge doesn't exist, reload to show it (first item)
+                if (badges.length === 0) {
+                    location.reload();
+                }
+            } else {
+                showToast(data.message || 'Error adding to cart', 'error');
+            }
+        } catch (error) {
+            console.error('Add to cart error:', error);
+            showToast('Connection error. Please try again.', 'error');
+        } finally {
+            icon.className = originalIconClass;
+            btn.style.pointerEvents = 'auto';
+            btn.style.opacity = '1';
+        }
     }
     </script>
     <!-- Floating Checkout Button -->
