@@ -405,6 +405,35 @@ def logout():
     flash('Logged out successfully.', 'info')
     return resp
 
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        try:
+            # Supabase handles the email sending
+            # Note: The site URL in Supabase dashboard must point to your /update-password route
+            supabase.auth.reset_password_for_email(email)
+            flash('Password reset link has been sent to your email.', 'success')
+            return redirect(url_for('login'))
+        except Exception as e:
+            flash(f'Error: {str(e)}', 'error')
+    
+    return render_template('forgot_password.html')
+
+@app.route('/update-password', methods=['GET', 'POST'])
+def update_password():
+    if request.method == 'POST':
+        new_password = request.form.get('password')
+        try:
+            # Note: User must be in a 'reset password' session (auto-handled by clicking the link)
+            supabase.auth.update_user({"password": new_password})
+            flash('Your password has been updated successfully. Please login.', 'success')
+            return redirect(url_for('login'))
+        except Exception as e:
+            flash(f'Error: {str(e)}', 'error')
+            
+    return render_template('update_password.html')
+
 # ── Cart ──────────────────────────────────────────────────────────────────────
 
 @app.route('/cart')
