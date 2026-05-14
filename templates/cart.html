@@ -129,6 +129,20 @@
             color: var(--text-muted);
         }
         .empty-state .empty-icon { font-size: 4rem; margin-bottom: 1rem; }
+
+        @media (max-width: 600px) {
+            .cart-page { padding-top: 80px; }
+            .cart-item {
+                flex-wrap: wrap;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            .cart-item img { width: 60px; height: 60px; }
+            .cart-item-info { width: calc(100% - 80px); }
+            .qty-controls { order: 2; margin-top: 0.5rem; }
+            .item-total { order: 3; margin-left: auto; flex: 1; }
+            .remove-btn { order: 4; }
+        }
     </style>
 </head>
 <body>

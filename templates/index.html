@@ -54,16 +54,13 @@
                 {% endif %}
             </nav>
             <div class="header-actions" style="display: flex; align-items: center; gap: 1.2rem;">
-                <a id="theme-toggle" style="cursor: pointer; color: var(--text-main); font-size: 1.1rem;"
-                    title="Toggle Dark/Light Mode">
+                <a id="theme-toggle" style="cursor: pointer; font-size: 1.1rem;" title="Toggle Dark/Light Mode">
                     <i class="fas fa-moon" id="theme-icon"></i>
                 </a>
                 {% if 'user' in session %}
-                <a href="/cart" class="cart-icon"
-                    style="position: relative; color: var(--text-main); font-size: 1.2rem;">
-                    <i class="fas fa-shopping-cart" style="color: var(--text-main); transition: color 0.3s;"
-                        onmouseover="this.style.color='var(--primary-color)'"
-                        onmouseout="this.style.color='var(--text-main)'"></i>
+                <a href="/cart" class="cart-icon" style="position: relative; font-size: 1.2rem;">
+                    <i class="fas fa-shopping-cart" style="transition: color 0.3s;"
+                        onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color=''"></i>
                     {% if cart_count > 0 %}
                     <span class="cart-badge"
                         style="position: absolute; top: -8px; right: -12px; background: var(--primary-color); color: white; border-radius: 50%; padding: 0.1rem 0.4rem; font-size: 0.75rem; font-weight: bold; min-width: 18px; text-align: center;">{{
@@ -72,8 +69,7 @@
                 </a>
                 {% endif %}
                 <a href="#menu" class="btn btn-primary nav-order-btn" style="padding: 0.5rem 1rem;">Order Now</a>
-                <div class="mobile-menu-icon" id="mobile-menu-icon"
-                    style="cursor: pointer; font-size: 1.2rem; color: var(--text-main);">
+                <div class="mobile-menu-icon" id="mobile-menu-icon" style="cursor: pointer; font-size: 1.2rem;">
                     <i class="fas fa-bars"></i>
                 </div>
             </div>
@@ -91,7 +87,8 @@
             <div class="hero-text">
                 <span class="badge">Functional Wellness</span>
                 <h1>Targeted Results,<br>Naturally Bottled.</h1>
-                <p>Premium functional shots for Radiance, Vitality, and Ageless Beauty. 100% pure fruit science
+                <p style="color:white;">Premium functional shots for Radiance, Vitality, and Ageless Beauty.
+                    100% pure fruit science
                     delivered in every single drop.</p>
                 <div class="hero-buttons">
                     <a href="#menu" class="btn btn-primary btn-large">Taste the Purity</a>
@@ -105,7 +102,7 @@
     <section class="features">
         <div class="container features-grid">
             <div class="feature-card">
-                <div class="feature-icon"><i class="fa-solid fa-sparkles"></i></div>
+                <div class="feature-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
                 <h3>Inner Radiance</h3>
                 <p>Functional shots designed to nourish your skin and promote a natural, healthy glow from within.</p>
             </div>
@@ -276,20 +273,22 @@
             <h2>Real Club Results</h2>
             <div class="testimonial-grid">
                 {% if top_reviews %}
-                    {% for r in top_reviews %}
-                    <div class="testimonial-card">
-                        <div class="stars">
-                            {% for i in range(r.rating) %}<i class="fa-solid fa-star"></i>{% endfor %}
-                        </div>
-                        <p>"{{ r.comment }}"</p>
-                        <h4>- {{ r.profiles.name if r.profiles else 'Verified Buyer' }}</h4>
-                        <small style="color: var(--primary-color); font-weight: 700;">Purchased: {{ r.products.name if r.products else 'Wellness Shot' }}</small>
+                {% for r in top_reviews %}
+                <div class="testimonial-card">
+                    <div class="stars">
+                        {% for i in range(r.rating) %}<i class="fa-solid fa-star"></i>{% endfor %}
                     </div>
-                    {% endfor %}
+                    <p>"{{ r.comment }}"</p>
+                    <h4>- {{ r.profiles.name if r.profiles else 'Verified Buyer' }}</h4>
+                    <small style="color: var(--primary-color); font-weight: 700;">Purchased: {{ r.products.name if
+                        r.products else 'Wellness Shot' }}</small>
+                </div>
+                {% endfor %}
                 {% else %}
-                    <div class="testimonial-card" style="grid-column: 1/-1;">
-                        <p>Our customers are currently experiencing their wellness journey. Be the first to share your results!</p>
-                    </div>
+                <div class="testimonial-card" style="grid-column: 1/-1;">
+                    <p>Our customers are currently experiencing their wellness journey. Be the first to share your
+                        results!</p>
+                </div>
                 {% endif %}
             </div>
         </div>
@@ -339,7 +338,9 @@
         </div>
         <div class="footer-bottom text-center">
             <p style="margin-bottom: 0.5rem; font-size: 0.85rem; opacity: 0.8;">
-                We use cookies and follow strict <a href="/terms" style="color: white; text-decoration: underline;">Terms & Conditions</a> to ensure we <strong>serve you better</strong> every day.
+                We use cookies and follow strict <a href="/terms"
+                    style="color: white; text-decoration: underline;">Terms & Conditions</a> to ensure we <strong>serve
+                    you better</strong> every day.
             </p>
             <p>&copy; 2026 Juicy Club Naturals. Crafted for your vitality.</p>
         </div>

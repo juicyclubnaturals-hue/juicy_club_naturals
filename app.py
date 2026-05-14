@@ -243,6 +243,8 @@ def home():
                 p['review_count'] = len(ratings)
     except Exception as e:
         print(f"Error in home: {e}")
+        # Re-raise to let global handler show accurate error
+        raise e
 
     return render_template('index.html', products=products, top_reviews=top_reviews, cart_count=cart_count)
 
@@ -272,7 +274,7 @@ def products_page():
         return render_template('products.html', products=products, categories=categories, cart_count=cart_count)
     except Exception as e:
         print(f"Error in products page: {e}")
-        return redirect(url_for('home'))
+        raise e
 
 @app.route('/submit_review/<product_id>', methods=['POST'])
 def submit_review(product_id):
@@ -658,8 +660,8 @@ def payment_success():
         return redirect(url_for('receipt', order_id=razorpay_order_id, token=receipt_token))
     except Exception as e:
         print(f"[PAYMENT] ERROR: {str(e)}")
-        flash('Payment verification failed.', 'error')
-        return redirect(url_for('home'))
+        # If it's a critical error, show the error page
+        raise e
 
 @app.route('/receipt/<order_id>')
 def receipt(order_id):
@@ -827,6 +829,48 @@ def admin_product_delete(product_id):
         return jsonify({'success': True})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+# ── ERROR HANDLERS ───────────────────────────────────────────────────────────
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('error.html', 
+                           error_code=404, 
+                           error_title="Page Not Found", 
+                           error_description="The page you're looking for doesn't exist or has been moved.",
+                           error_detail=str(e) if app.debug else None), 404
+
+@app.errorhandler(403)
+def forbidden(e):
+    return render_template('error.html', 
+                           error_code=403, 
+                           error_title="Access Forbidden", 
+                           error_description="You don't have permission to access this resource.",
+                           error_detail=str(e) if app.debug else None), 403
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('error.html', 
+                           error_code=500, 
+                           error_title="Something Went Wrong", 
+                           error_description="We encountered an internal error. Our team has been notified.",
+                           error_detail=str(e)), 500
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    # Pass through HTTP errors
+    if hasattr(e, 'code') and e.code in [404, 403, 500]:
+        return e
+    
+    # Log the error for the developer
+    print(f"Unhandled Exception: {e}")
+    
+    return render_template('error.html', 
+                           error_code="Error", 
+                           error_title="Unexpected Error", 
+                           error_description="An unexpected error occurred while processing your request.",
+                           error_detail=str(e)), 500
 
 
 if __name__ == '__main__':

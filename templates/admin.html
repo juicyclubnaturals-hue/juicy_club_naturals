@@ -69,7 +69,21 @@
         .btn-edit { background: #fff3cd; color: #856404; border: none; padding: 0.3rem 0.8rem; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
         .btn-del  { background: #f8d7da; color: #721c24; border: none; padding: 0.3rem 0.8rem; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; margin-left: 0.3rem; }
 
-        @media(max-width:640px){ .form-grid { grid-template-columns: 1fr; } }
+        @media(max-width: 768px) {
+            .admin-wrap { padding-top: 80px; }
+            .stat-grid { grid-template-columns: 1fr 1fr; }
+            .admin-tabs { justify-content: center; }
+            .tab-btn { flex: 1; text-align: center; padding: 0.6rem 0.5rem; font-size: 0.85rem; }
+            .form-grid { grid-template-columns: 1fr; }
+            th, td { font-size: 0.8rem; padding: 0.6rem; }
+        }
+
+        @media(max-width: 480px) {
+            .stat-grid { grid-template-columns: 1fr; }
+            .admin-tabs { flex-direction: column; }
+            .tab-btn { width: 100%; border-radius: 12px; }
+            .table-wrap { padding: 1rem 0.5rem; }
+        }
     </style>
 </head>
 <body>
