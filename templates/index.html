@@ -14,7 +14,7 @@
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#FF8C00">
     <link rel="apple-touch-icon"
-        href="https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=192&q=80">
+        href="{{ url_for('static', filename='images/juicy club naturals.png') }}">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,7 +34,7 @@
     <header class="navbar" id="navbar">
         <div class="container nav-container">
             <a href="/" class="logo">
-                <span class="logo-juicy">Juicy</span> Club <span class="logo-naturals">Naturals</span>
+                <img src="{{ url_for('static', filename='images/juicy club naturals.png') }}" alt="Juicy Club Naturals Logo">
             </a>
             <nav class="nav-links">
                 <a href="#home">Home</a>
@@ -308,12 +308,16 @@
         <div class="container footer-grid">
             <div class="footer-brand">
                 <a href="/" class="logo logo-footer">
-                    <span class="logo-juicy">Juicy</span> Club <span class="logo-naturals">Naturals</span>
+                    <img src="{{ url_for('static', filename='images/juicy club naturals.png') }}" alt="Juicy Club Naturals Logo">
                 </a>
                 <p>Premium functional wellness shots for beauty, energy, and gut health. 101% natural ingredients, zero
                     compromise.</p>
+                <div class="contact-info" style="margin-top: 1.5rem; margin-bottom: 1.5rem; font-size: 0.95rem;">
+                    <p style="margin-bottom: 0.5rem; color: #aaa;"><i class="fa-solid fa-envelope" style="margin-right: 10px;"></i> <a href="mailto:juicyclubnaturals@gmail.com" style="color: #aaa;">juicyclubnaturals@gmail.com</a></p>
+                    <p style="color: #aaa;"><i class="fa-solid fa-location-dot" style="margin-right: 10px;"></i> Ludhiana, Punjab</p>
+                </div>
                 <div class="social-links">
-                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://www.instagram.com/juicyclub123" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-instagram"></i></a>
                     <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
                     <a href="#"><i class="fa-brands fa-twitter"></i></a>
                 </div>

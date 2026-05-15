@@ -89,7 +89,7 @@ body {
 }
 
 p,
-span:not(.logo-juicy):not(.logo-naturals),
+span,
 li,
 td,
 th,
@@ -227,22 +227,20 @@ h2 {
 }
 
 .logo {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--white); /* Always white at start */
-    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
 }
 
-.navbar.scrolled .logo {
-    color: var(--text-main); /* Theme-aware on scroll */
+.logo img {
+    height: 65px;
+    width: auto;
+    object-fit: contain;
+    transition: transform 0.3s ease;
 }
 
-.logo-juicy {
-    color: var(--primary-color);
-}
-
-.logo-naturals {
-    color: var(--secondary-color);
+.logo:hover img {
+    transform: scale(1.05);
 }
 
 .nav-links {

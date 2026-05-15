@@ -1,6 +1,6 @@
 {
   "name": "Juicy Club Naturals",
-  "short_name": "Juicy Club",
+  "short_name": "Juicy Club Naturals",
   "description": "Premium Functional Wellness Shots for Beauty, Energy & Health",
   "start_url": "/",
   "display": "standalone",
@@ -9,12 +9,12 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=192&q=80",
+      "src": "/static/images/juicy%20club%20naturals.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=512&q=80",
+      "src": "/static/images/juicy%20club%20naturals.png",
       "sizes": "512x512",
       "type": "image/png"
     }
